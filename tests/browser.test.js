@@ -109,12 +109,6 @@ test('browser workflow: imports, citations, notebook isolation/duplication, back
     await context.setOffline(false);
     assert.deepEqual(pageErrors, []);
     await t.diagnostic('Chromium '+browser.version()+' verified notebook/source/chat/backup flows and offline shell opening.');
-  } catch (error) {
-    if (process.env.GITHUB_ACTIONS) {
-      const detail = JSON.stringify(`${error.name}: ${error.message}\n${error.stack || ''}`).replace(/%/g, '%25');
-      console.log(`::error file=tests/browser.test.js,title=Browser workflow failed::${detail}`);
-    }
-    throw error;
   } finally {
     if (browser) await browser.close();
     await new Promise(resolveClose => server.close(resolveClose));
