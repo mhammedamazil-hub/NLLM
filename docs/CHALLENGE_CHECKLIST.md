@@ -10,9 +10,9 @@ Updated 2026-10-29. This checklist distinguishes code present, locally tested, b
 4. [x] **Offline study/export:** evidence digest, interactive flashcards, Markdown notes, standalone HTML report, CSV flashcards, JSON backup and validated restore. Browser workflow verifies report/CSV/JSON downloads and restore.
 5. [x] **PWA/build:** bundled static output, service-worker shell and fetched PDF.js asset caching. Clean build succeeds. Chromium workflow verifies service-worker activation, responsive settings, and offline shell plus IndexedDB data after reload.
 6. [x] **Local browser automation and package checks:** pinned Chromium/Playwright workflow passes locally, including from a clean state with `dist/` absent. `npm run verify` runs syntax checks, unit and browser tests, npm audit, and production build.
-7. [ ] **Rust/WASM runtime:** Rust prototype and CI are present. Hosted `cargo fmt --check` passed, but the latest `cargo test` failed. Source review found a scoring expression that could make short matching passages negative; it has been fixed locally and needs hosted verification. No WASM integration.
+7. [ ] **Rust/WASM runtime:** hosted `cargo fmt --check` and `cargo test` now pass after fixing short-passage lexical scores. Latest `cargo clippy -D warnings` fails; the workflow is being changed to expose diagnostics, then fix and rerun. No WASM integration.
 8. [ ] **Native/media packaging:** audio/YouTube/Instagram/native installers are not built. No FFmpeg, yt-dlp, desktop SDKs, or Android toolchain were available. Do not claim those outputs.
-9. [ ] **External release/deploy:** latest hosted run passed npm install, syntax, 22 unit tests, Chromium browser workflow, npm audit, production build, and Rust formatting; it then failed at `cargo test`. The Rust scoring fix is local and awaits CI. Clippy, Pages deployment, releases, and native targets are unverified.
+9. [ ] **External release/deploy:** latest hosted run passed browser, audit, build, Rust formatting and tests, but failed Clippy. The CI step is being instrumented for diagnostics. Clippy, Pages deployment, releases, and native targets remain unverified.
 
 ## Measured environment and blockers
 
@@ -25,6 +25,6 @@ Updated 2026-10-29. This checklist distinguishes code present, locally tested, b
 - `npm ci`: completed; 51 packages audited, **0 vulnerabilities**.
 - Removed ignored `dist/`, then ran `npm run test:browser`: the test script rebuilt the PWA and passed **1/1 browser workflow** on bundled Chromium 138.0.7204.0.
 - Latest `npm run verify`: **passed**: syntax checks; **22/22 unit tests + 1/1 browser workflow (23 total)**; `npm audit --audit-level=moderate` reported **0 vulnerabilities**; production build succeeded (0.71 MiB app bundle, 1.35 MiB PDF worker, standard fonts/CMaps copied).
-- Latest hosted run `40867107139` (commit `8e2253e`): npm install, syntax, 22/22 unit tests, browser workflow, audit, build, and `cargo fmt --check` passed; `cargo test` failed and stopped clippy/Pages jobs. The Rust score formula was corrected after reviewing the source; a fresh hosted test is required.
-- Hosted browser runs 1–4 before commit `8e2253e` failed because the test server expected `dist/` in a clean checkout. The browser test now builds it itself; that fix is confirmed by both clean local and hosted browser tests.
+- Latest hosted run `40867655351` (commit `7eff05f`): npm install, syntax, 22 unit tests, Chromium workflow, audit, build, `cargo fmt`, and `cargo test` passed; Clippy failed under `-D warnings`, stopping Pages. A new workflow annotation is being added to expose Clippy diagnostics.
+- Hosted browser runs 1–4 before commit `8e2253e` failed because the test server expected `dist/` in a clean checkout. The test now builds it first; clean local and hosted browser tests pass.
 - Live provider calls, Pages deployment, OCR/media processing, and native packages are **not verified/not implemented**.

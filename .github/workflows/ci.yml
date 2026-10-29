@@ -29,7 +29,22 @@ jobs:
           components: rustfmt, clippy
       - run: cargo fmt --all -- --check
       - run: cargo test --workspace --locked
-      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: cargo clippy --workspace --all-targets -- -D warnings
+        shell: bash
+        run: |
+          if cargo clippy --workspace --all-targets -- -D warnings > /tmp/clippy.log 2>&1; then
+            cat /tmp/clippy.log
+          else
+            status=$?
+            cat /tmp/clippy.log
+            python3 - <<'PY'
+          from pathlib import Path
+          message = ' '.join(Path('/tmp/clippy.log').read_text(errors='replace').split())[-4000:]
+          message = message.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+          print(f'::error title=Clippy diagnostics::{message}')
+          PY
+            exit "$status"
+          fi
   pages:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: web-tests
