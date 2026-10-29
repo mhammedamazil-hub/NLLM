@@ -59,6 +59,6 @@ A dependency-free Rust crate provides a tested core-domain prototype; hosted CI 
 
 ## Build and deployment
 
-`npm run build` creates the static distributable in ignored `dist/`. GitHub Actions is configured to run JavaScript/browser tests, audit/build, and Rust format/test/lint checks; Pages deployment is gated on that job and builds the bundled static app. Hosted CI run [40868770644](https://github.com/mhammedamazil-hub/NLLM/actions/runs/40868770644) passed web syntax/tests, browser workflow, audit/build, Rust formatting, tests, and Clippy. Pages deployment only runs on `main`; no deployment or release artifact was produced from this feature branch. There are no Android, Linux desktop, Windows desktop, APK, installer, or signed-release targets.
+`npm run build` creates the static distributable in ignored `dist/`. GitHub Actions is configured to run JavaScript/browser tests, audit/build, and Rust format/test/lint checks; Pages deployment is gated on that job and builds the bundled static app. Hosted CI run [40868986888](https://github.com/mhammedamazil-hub/NLLM/actions/runs/40868986888) passed web syntax/tests, browser workflow, audit/build, Rust formatting, tests, and Clippy. Pages deployment only runs on `main`; no deployment or release artifact was produced from this feature branch. There are no Android, Linux desktop, Windows desktop, APK, installer, or signed-release targets.
 
 See [MIT License](LICENSE) and [third-party notices](docs/THIRD_PARTY.md).
