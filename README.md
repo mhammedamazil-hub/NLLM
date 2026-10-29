@@ -59,6 +59,6 @@ A dependency-free Rust crate provides a core-domain prototype and tests. The bro
 
 ## Build and deployment
 
-`npm run build` creates the static distributable in ignored `dist/`. GitHub Actions is configured to run JavaScript/browser tests, audit/build, and Rust format/test/lint checks; Pages deployment is gated on that job and builds the bundled static app. The first hosted CI run failed in the combined npm verification step. A diagnostic follow-up passed syntax and unit tests but failed in bundled Chromium browser automation; that test now emits its stack as a GitHub annotation. Audit/build and Rust/Pages jobs have not yet completed on GitHub. There are no Android, Linux desktop, Windows desktop, APK, installer, or signed-release targets.
+`npm run build` creates the static distributable in ignored `dist/`. GitHub Actions is configured to run JavaScript/browser tests, audit/build, and Rust format/test/lint checks; Pages deployment is gated on that job and builds the bundled static app. Hosted CI runs 1–4 exposed a clean-runner setup defect: browser tests served ignored `dist/` before building it. The browser test now builds its own app; this passes locally from a clean `dist/`, and `npm run verify` is green. A fresh hosted run is pending; audit/build and Rust/Pages have not yet completed successfully on GitHub. There are no Android, Linux desktop, Windows desktop, APK, installer, or signed-release targets.
 
 See [MIT License](LICENSE) and [third-party notices](docs/THIRD_PARTY.md).

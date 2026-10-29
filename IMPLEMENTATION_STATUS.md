@@ -1,21 +1,15 @@
 # Implementation status
 
-Updated 2026-10-29. See [`docs/CHALLENGE_CHECKLIST.md`](docs/CHALLENGE_CHECKLIST.md) for prioritized scope and the continuously updated test/deployment checklist.
+Updated 2026-10-29. Active branch: `arena/53208eb5-nllm`. The clean-checkout browser test fix is locally verified and awaits commit/push so hosted CI can rerun. Prioritized details: [`docs/CHALLENGE_CHECKLIST.md`](docs/CHALLENGE_CHECKLIST.md).
 
-## Implemented
+## Current state
 
-- Responsive static PWA shell, browser-local IndexedDB persistence, notebook/source operations, theme and provider settings.
-- Bounded paste/text, public GitHub selected-file, PDF, DOCX, and PPTX text ingestion; file/page/slide provenance; deterministic local retrieval with source-grounded citations and insufficient-evidence behavior.
-- Optional direct OpenAI-compatible, Anthropic, and Gemini adapters; no mandatory key or hosted AI/service.
-- Source digest, interactive flashcards, Markdown notes, HTML report, CSV flashcards, JSON export/import with citation validation.
-- Bundled build, PWA service worker with offline app shell and fetched PDF.js assets, parser/provider/retrieval unit tests, and bundled Chromium browser workflow.
+- **Implemented:** isolated notebooks and source CRUD/duplication, content/title search and source selection, local evidence retrieval with page/line citations and insufficient-evidence behavior, optional direct OpenAI-compatible/Anthropic/Gemini APIs, bounded PDF/DOCX/PPTX/text/GitHub ingestion, evidence digest/flashcards/Markdown/HTML/CSV/JSON exports, offline PWA shell, Rust core prototype, and CI configuration.
+- **Clean-checkout fix:** hosted browser tests previously served ignored `dist/` before it was built. `test:browser` now builds the static app before starting its local server. Verified from a clean local state by removing `dist/` and running `npm run test:browser`: build succeeded and browser workflow passed 1/1.
+- **Latest `npm run verify`: passed.** JavaScript syntax checks; **22/22 unit tests plus 1/1 browser workflow (23 total)**; `npm audit --audit-level=moderate` reported **0 vulnerabilities**; production bundle built at 0.71 MiB with a 1.35 MiB PDF worker and copied PDF.js standard fonts/CMaps.
+- **Browser coverage:** bundled Chromium 138.0.7204.0 exercises source/chat/citation flows, notebook isolation and duplication, HTML/CSV/JSON downloads, backup restore, responsive settings, service-worker activation, and offline reload with the active notebook/source retained in IndexedDB.
+- **Hosted CI:** first four push-triggered runs failed at the browser step due to the missing pre-test build. GitHub check annotation exposed `/` returning 404 on the clean runner. Fix passes locally; next push should rerun CI. Rust/Pages jobs have not completed successfully yet.
 
-## Verification state
+## Explicitly incomplete/unverified
 
-- `npm run verify`: **passed** after the latest browser/PWA fixes. JavaScript syntax checks passed; **23/23 tests passed**; `npm audit --audit-level=moderate` reported **0 vulnerabilities**; production build completed (app bundle 0.71 MiB, PDF worker 1.35 MiB, with standard fonts and CMaps copied).
-- Browser subtest ran on bundled Chromium **138.0.7204.0**, including notebook/source/chat/citation flows, notebook isolation/duplication, HTML/CSV/JSON downloads, backup restore, PWA activation, responsive settings, and offline reload with IndexedDB data.
-- Hosted run 1 (`feb7909`) failed at combined npm verification. Run 2 (`0ffb460`) passed syntax and 22/22 unit tests, then failed in the bundled Chromium workflow. The raw log host is inaccessible from this sandbox, so the browser assertion is unknown; failures now emit a GitHub annotation with a stack. Audit/build and Rust/Pages jobs did not execute. Live provider calls and release publication were not performed.
-
-## Explicit limits
-
-No scanned-PDF OCR, arbitrary web scraping, audio/YouTube/Instagram ingestion, local LLM, offline inference, audio generation, PPTX/PDF export, sharing/sync, or native Android/desktop installers. Rust source and CI job exist, but there is no verified local Rust toolchain or compiled/WASM browser runtime. REA was not run because the available Node is below its package engine requirement and no MCP browser-observation client is available. SourceForge is a provisional product name; repository identity is NLLM.
+Rust/Cargo checks and WASM integration; hosted CI after the fix; Pages deployment; live provider requests; OCR, audio/video/YouTube/Instagram ingestion; local AI inference; audio generation; PPTX/PDF export; desktop/mobile installers. REA was not run because local Node is below its declared requirement and no MCP inspection client was available. No deployment or release artifact is claimed.

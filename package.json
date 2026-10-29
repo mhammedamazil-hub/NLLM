@@ -7,9 +7,9 @@
     "test": "npm run test:unit && npm run test:browser",
     "check": "node --check web/core.js && node --check web/provider.js && node --check web/backup.js && node --check web/parsers.js && node --check web/app.js && node --check sw.js && node --check scripts/build.mjs && node --check scripts/test-browser.mjs && node --check tests/browser.test.js",
     "build": "node scripts/build.mjs",
-    "verify": "npm run check && npm test && npm audit --audit-level=moderate && npm run build",
+    "verify": "npm run check && npm test && npm audit --audit-level=moderate",
     "test:unit": "node --test --test-concurrency=1 tests/backup.test.js tests/core.test.js tests/parsers.test.js tests/provider.test.js",
-    "test:browser": "node scripts/test-browser.mjs"
+    "test:browser": "npm run build && node scripts/test-browser.mjs"
   },
   "dependencies": {
     "@xmldom/xmldom": "0.8.15",
