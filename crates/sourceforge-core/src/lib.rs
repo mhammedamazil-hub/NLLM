@@ -87,7 +87,7 @@ pub fn retrieve(passages: &[Passage], query: &str, limit: usize) -> Vec<Hit> {
             for q in &query_terms {
                 let frequency = words.iter().filter(|w| *w == q).count() as f64;
                 if frequency > 0.0 {
-                    score += frequency * (1.0 + (words.len() as f64 / 80.0).ln());
+                    score += frequency * (2.0 / (1.0 + words.len() as f64 / 80.0));
                 }
                 if terms(&p.source_name).contains(q) {
                     score += 0.5;

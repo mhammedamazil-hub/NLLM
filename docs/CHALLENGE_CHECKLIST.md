@@ -9,10 +9,10 @@ Updated 2026-10-29. This checklist distinguishes code present, locally tested, b
 3. [x] **Bounded ingestion:** paste/text and selected public GitHub files; in-browser PDF/DOCX/PPTX parsers with provenance/size handling and corrupt-file errors. Parser unit tests pass. No OCR, arbitrary web extraction, audio, video, or caption acquisition.
 4. [x] **Offline study/export:** evidence digest, interactive flashcards, Markdown notes, standalone HTML report, CSV flashcards, JSON backup and validated restore. Browser workflow verifies report/CSV/JSON downloads and restore.
 5. [x] **PWA/build:** bundled static output, service-worker shell and fetched PDF.js asset caching. Clean build succeeds. Chromium workflow verifies service-worker activation, responsive settings, and offline shell plus IndexedDB data after reload.
-6. [x] **Local browser automation and package checks:** pinned Chromium/Playwright workflow passes locally. `npm run verify` runs syntax checks, unit and browser tests, npm audit, and production build.
-7. [ ] **Rust/WASM runtime:** Rust domain prototype and CI configuration exist; local `rustc`/`cargo` are unavailable. WASM compilation/integration remains unverified.
+6. [x] **Local browser automation and package checks:** pinned Chromium/Playwright workflow passes locally, including from a clean state with `dist/` absent. `npm run verify` runs syntax checks, unit and browser tests, npm audit, and production build.
+7. [ ] **Rust/WASM runtime:** Rust prototype and CI are present. Hosted `cargo fmt --check` passed, but the latest `cargo test` failed. Source review found a scoring expression that could make short matching passages negative; it has been fixed locally and needs hosted verification. No WASM integration.
 8. [ ] **Native/media packaging:** audio/YouTube/Instagram/native installers are not built. No FFmpeg, yt-dlp, desktop SDKs, or Android toolchain were available. Do not claim those outputs.
-9. [ ] **External release/deploy:** hosted runs 1–4 failed in browser automation because a clean GitHub runner had no `dist/` when the test server started. `test:browser` now builds `dist/` before running. A clean local rerun and full verification pass; the hosted rerun is pending. Audit/Rust/Pages and releases are not yet verified on GitHub.
+9. [ ] **External release/deploy:** latest hosted run passed npm install, syntax, 22 unit tests, Chromium browser workflow, npm audit, production build, and Rust formatting; it then failed at `cargo test`. The Rust scoring fix is local and awaits CI. Clippy, Pages deployment, releases, and native targets are unverified.
 
 ## Measured environment and blockers
 
@@ -23,7 +23,8 @@ Updated 2026-10-29. This checklist distinguishes code present, locally tested, b
 ## Latest local acceptance results
 
 - `npm ci`: completed; 51 packages audited, **0 vulnerabilities**.
-- `npm run test:browser` after deliberately removing ignored `dist/`: the script rebuilt the PWA and passed **1/1 browser workflow** on bundled Chromium 138.0.7204.0.
-- `npm run verify`: **passed** after the clean-checkout fix: syntax checks; **22/22 unit tests + 1/1 browser workflow (23 total)**; `npm audit --audit-level=moderate` reported **0 vulnerabilities**; production build succeeded (0.71 MiB app bundle, 1.35 MiB PDF worker, standard fonts/CMaps copied).
-- Hosted runs 1–4 (`feb7909` through `f514dca`) ran before the clean-checkout fix. Their browser step served `/` as 404 because no build preceded it. The fix is locally verified but awaits another hosted push run; the raw log host was inaccessible from this sandbox, but the final run's check annotation exposed the 404 and startup timeout.
-- Rust commands, hosted CI after the fix, Pages deployment, live provider calls, OCR/media processing, and native packages are **not yet verified/not implemented**.
+- Removed ignored `dist/`, then ran `npm run test:browser`: the test script rebuilt the PWA and passed **1/1 browser workflow** on bundled Chromium 138.0.7204.0.
+- Latest `npm run verify`: **passed**: syntax checks; **22/22 unit tests + 1/1 browser workflow (23 total)**; `npm audit --audit-level=moderate` reported **0 vulnerabilities**; production build succeeded (0.71 MiB app bundle, 1.35 MiB PDF worker, standard fonts/CMaps copied).
+- Latest hosted run `40867107139` (commit `8e2253e`): npm install, syntax, 22/22 unit tests, browser workflow, audit, build, and `cargo fmt --check` passed; `cargo test` failed and stopped clippy/Pages jobs. The Rust score formula was corrected after reviewing the source; a fresh hosted test is required.
+- Hosted browser runs 1–4 before commit `8e2253e` failed because the test server expected `dist/` in a clean checkout. The browser test now builds it itself; that fix is confirmed by both clean local and hosted browser tests.
+- Live provider calls, Pages deployment, OCR/media processing, and native packages are **not verified/not implemented**.

@@ -108,6 +108,7 @@ test('browser workflow: imports, citations, notebook isolation/duplication, back
     await page.locator('.mobile-tab[data-page="settings"]').click(); assert.ok(await page.locator('#page-settings').isVisible());
     await page.locator('.mobile-tab[data-page="research"]').click();
     await context.setOffline(true); await page.reload(); await page.waitForFunction(() => document.querySelector('#notebook-select')?.options.length > 0);
+    await page.waitForFunction(() => document.querySelectorAll('.source-item').length === 1, null, { timeout: 15000 });
     assert.equal(await page.locator('.source-item').count(), 1, 'IndexedDB notebook/source survive an offline reload');
     await context.setOffline(false);
     assert.deepEqual(pageErrors, []);
