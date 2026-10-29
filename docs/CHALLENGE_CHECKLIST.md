@@ -12,7 +12,7 @@ Updated 2026-10-29. This checklist distinguishes code present, locally tested, b
 6. [x] **Local browser automation and package checks:** pinned Chromium/Playwright workflow passes locally, including from a clean state with `dist/` absent. `npm run verify` runs syntax checks, unit/browser tests, npm audit, and production build.
 7. [x] **Rust prototype checks:** hosted `cargo fmt --check`, `cargo test`, and `cargo clippy -- -D warnings` all pass. [ ] **Rust/WASM browser runtime:** no WASM module is built or integrated; local Rust/Cargo are unavailable.
 8. [ ] **Native/media packaging:** audio/YouTube/Instagram/native installers are not built. No FFmpeg, yt-dlp, desktop SDKs, or Android toolchain were available. Do not claim those outputs.
-9. [x] **Hosted CI:** latest run `40868479454` passed web tests, audit/build, Rust formatting, tests, and Clippy. [ ] **Pages/release deployment:** Pages deploys only from `main`; no deployment or released artifact was triggered from this feature branch.
+9. [x] **Hosted CI:** latest run `40868770644` passed web tests, audit/build, Rust formatting, tests, and Clippy. [ ] **Pages/release deployment:** Pages deploys only from `main`; no deployment or released artifact was triggered from this feature branch.
 
 ## Measured environment and blockers
 
@@ -25,5 +25,5 @@ Updated 2026-10-29. This checklist distinguishes code present, locally tested, b
 - `npm ci`: completed; 51 packages audited, **0 vulnerabilities**.
 - Removed ignored `dist/`, then ran `npm run test:browser`: the test script rebuilt the PWA and passed **1/1 browser workflow** on bundled Chromium 138.0.7204.0.
 - Latest `npm run verify`: **passed**: syntax checks; **22/22 unit tests + 1/1 browser workflow (23 total)**; `npm audit --audit-level=moderate` reported **0 vulnerabilities**; production build succeeded (0.71 MiB app bundle, 1.35 MiB PDF worker, standard fonts/CMaps copied).
-- Latest hosted run `40868479454` (commit `949f30f`): **passed** `npm ci`, syntax, 22 unit tests, Chromium workflow, audit, build, `cargo fmt`, `cargo test`, and `cargo clippy`. [Run details](https://github.com/mhammedamazil-hub/NLLM/actions/runs/40868479454).
+- Latest hosted run `40868770644` (commit `b1a9198`): **passed** `npm ci`, syntax, 22 unit tests, Chromium workflow, audit, build, `cargo fmt`, `cargo test`, and `cargo clippy`. [Run details](https://github.com/mhammedamazil-hub/NLLM/actions/runs/40868770644).
 - Live provider calls, Pages deployment, OCR/media processing, and native packages are **not verified/not implemented**.
