@@ -12,7 +12,7 @@ Updated 2026-10-29. This checklist distinguishes code present, locally tested, b
 6. [x] **Browser automation and package checks:** pinned Chromium/Playwright workflow is included and passes locally after using the package's NSS/NSPR libraries. `npm run verify` is the complete local gate; latest result below.
 7. [ ] **Rust/WASM runtime:** Rust domain prototype and CI configuration exist; local `rustc`/`cargo` are unavailable. WASM compilation/integration and GitHub CI results remain unverified.
 8. [ ] **Native/media packaging:** audio/YouTube/Instagram/native installers are not built. No FFmpeg, yt-dlp, desktop SDKs, or Android toolchain were available. Do not claim those outputs.
-9. [ ] **External release/deploy:** GitHub Actions and Pages/release packaging are configured but have not run in this session; no published artifact or deployment is claimed.
+9. [ ] **External release/deploy:** the hosted CI workflow ran on the pushed branch and failed in its combined `npm run verify` step. The redirected raw log host was inaccessible from this sandbox, so the failing sub-check is not known. The workflow is now split into syntax, unit, browser, audit, and build steps for diagnosis on the next run. Rust and deployment jobs did not execute; no published artifact or deployment is claimed.
 
 ## Measured environment and blockers
 
@@ -25,4 +25,4 @@ Updated 2026-10-29. This checklist distinguishes code present, locally tested, b
 - `node --check web/parsers.js && node --test tests/parsers.test.js`: **4/4 passed** (DOCX, PPTX, PDF page mapping, corrupt Office input).
 - `npm test`: **23/23 passed** (serial Node test runner; includes parser, backup, retrieval, provider, and browser workflow suites).
 - `npm run verify`: **passed** after the browser/PWA fixes. Syntax checks passed; **23/23 tests passed**; `npm audit --audit-level=moderate` reported **0 vulnerabilities**; production build succeeded (0.71 MiB app bundle, 1.35 MiB PDF worker, with standard fonts/CMaps copied into `dist/`).
-- Rust commands, hosted CI, Pages deployment, live provider calls, OCR/media processing, and native packages: **not verified/not implemented**, as stated above.
+- The first hosted push-triggered CI run (run 1 for commit `feb7909`) failed at `npm run verify`. GitHub's check summary exposed only the step failure; raw logs redirect to a storage host unavailable in this sandbox, so the exact sub-check is unknown. The workflow has been split into smaller steps and needs a rerun. Rust commands were skipped because the web step failed; Pages deployment, live provider calls, OCR/media processing, and native packages remain unverified/not implemented.

@@ -17,9 +17,9 @@ python3 -m http.server 4173 --bind 0.0.0.0 --directory dist
 Open `http://localhost:4173`. A secure HTTPS origin (or localhost) is required for service-worker installation. The static server serves files only; it is not an application API.
 
 ```sh
-npm test          # deterministic tests plus bundled-Chromium browser workflow
-npm run check     # syntax checks and test suite
-npm run verify    # check/tests, npm audit, and production PWA build
+npm test          # deterministic unit tests plus bundled-Chromium browser workflow
+npm run check     # JavaScript syntax checks
+npm run verify    # syntax/tests, npm audit, and production PWA build
 ```
 
 Rust core (requires a stable Rust toolchain):
@@ -59,6 +59,6 @@ A dependency-free Rust crate provides a core-domain prototype and tests. The bro
 
 ## Build and deployment
 
-`npm run build` creates the static distributable in ignored `dist/`. GitHub Actions is configured to run JavaScript/browser tests, an npm audit/build, and Rust format/test/lint checks; Pages deployment is gated on that job and builds the bundled static app. **CI and deployment have not been observed in this run.** There are no Android, Linux desktop, Windows desktop, APK, installer, or signed-release targets.
+`npm run build` creates the static distributable in ignored `dist/`. GitHub Actions is configured to run JavaScript/browser tests, audit/build, and Rust format/test/lint checks; Pages deployment is gated on that job and builds the bundled static app. The first hosted CI run on this branch failed in the combined npm verification step; the workflow is now split for diagnosis, but that follow-up run has not completed. Rust and Pages jobs therefore remain unverified. There are no Android, Linux desktop, Windows desktop, APK, installer, or signed-release targets.
 
 See [MIT License](LICENSE) and [third-party notices](docs/THIRD_PARTY.md).

@@ -14,7 +14,7 @@ Updated 2026-10-29. See [`docs/CHALLENGE_CHECKLIST.md`](docs/CHALLENGE_CHECKLIST
 
 - `npm run verify`: **passed** after the latest browser/PWA fixes. JavaScript syntax checks passed; **23/23 tests passed**; `npm audit --audit-level=moderate` reported **0 vulnerabilities**; production build completed (app bundle 0.71 MiB, PDF worker 1.35 MiB, with standard fonts and CMaps copied).
 - Browser subtest ran on bundled Chromium **138.0.7204.0**, including notebook/source/chat/citation flows, notebook isolation/duplication, HTML/CSV/JSON downloads, backup restore, PWA activation, responsive settings, and offline reload with IndexedDB data.
-- Rust checks, GitHub-hosted CI, Pages deployment, live provider calls, and release publication: not observed in this revision.
+- The first GitHub Actions run (push-triggered on `feb7909`) failed at the combined `npm run verify` step. The check summary did not identify a sub-check and the raw log host was inaccessible from this sandbox. CI is now split into individual validation steps; the follow-up run is pending. Rust and Pages jobs did not execute. Live provider calls and release publication were not performed.
 
 ## Explicit limits
 
