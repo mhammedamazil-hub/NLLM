@@ -9,10 +9,10 @@ Updated 2026-10-29. This checklist distinguishes code present, locally tested, b
 3. [x] **Bounded ingestion:** paste/text and selected public GitHub files; in-browser PDF/DOCX/PPTX parsers with provenance/size handling and corrupt-file errors. Parser unit tests pass. No OCR, arbitrary web extraction, audio, video, or caption acquisition.
 4. [x] **Offline study/export:** evidence digest, interactive flashcards, Markdown notes, standalone HTML report, CSV flashcards, JSON backup and validated restore. Browser workflow verifies report/CSV/JSON downloads and restore.
 5. [x] **PWA/build:** bundled static output, service-worker shell and fetched PDF.js asset caching. Clean build succeeds. Chromium workflow verifies service-worker activation, responsive settings, and offline shell plus IndexedDB data after reload.
-6. [x] **Local browser automation and package checks:** pinned Chromium/Playwright workflow passes locally, including from a clean state with `dist/` absent. `npm run verify` runs syntax checks, unit and browser tests, npm audit, and production build.
-7. [ ] **Rust/WASM runtime:** hosted `cargo fmt --check` and `cargo test` pass after fixing short-passage lexical scores. Clippy identified a test-only cloned-slice warning; the code now uses `std::slice::from_ref`, pending hosted rerun. No WASM integration.
+6. [x] **Local browser automation and package checks:** pinned Chromium/Playwright workflow passes locally, including from a clean state with `dist/` absent. `npm run verify` runs syntax checks, unit/browser tests, npm audit, and production build.
+7. [x] **Rust prototype checks:** hosted `cargo fmt --check`, `cargo test`, and `cargo clippy -- -D warnings` all pass. [ ] **Rust/WASM browser runtime:** no WASM module is built or integrated; local Rust/Cargo are unavailable.
 8. [ ] **Native/media packaging:** audio/YouTube/Instagram/native installers are not built. No FFmpeg, yt-dlp, desktop SDKs, or Android toolchain were available. Do not claim those outputs.
-9. [ ] **External release/deploy:** latest hosted run passed browser, audit, build, Rust formatting and tests, but failed Clippy. The CI step is being instrumented for diagnostics. Clippy, Pages deployment, releases, and native targets remain unverified.
+9. [x] **Hosted CI:** latest run `40868176001` passed web tests, audit/build, Rust formatting, tests, and Clippy. [ ] **Pages/release deployment:** Pages deploys only from `main`; no deployment or released artifact was triggered from this feature branch.
 
 ## Measured environment and blockers
 
@@ -25,6 +25,5 @@ Updated 2026-10-29. This checklist distinguishes code present, locally tested, b
 - `npm ci`: completed; 51 packages audited, **0 vulnerabilities**.
 - Removed ignored `dist/`, then ran `npm run test:browser`: the test script rebuilt the PWA and passed **1/1 browser workflow** on bundled Chromium 138.0.7204.0.
 - Latest `npm run verify`: **passed**: syntax checks; **22/22 unit tests + 1/1 browser workflow (23 total)**; `npm audit --audit-level=moderate` reported **0 vulnerabilities**; production build succeeded (0.71 MiB app bundle, 1.35 MiB PDF worker, standard fonts/CMaps copied).
-- Latest hosted run `40867947533` (commit `14e5078`): npm install, syntax, 22 unit tests, Chromium workflow, audit, build, `cargo fmt`, and `cargo test` passed; Clippy reported one test-only `cloned_ref_to_slice_refs` warning. The code has been corrected; hosted rerun is pending.
-- Hosted browser runs 1–4 before commit `8e2253e` failed because the test server expected `dist/` in a clean checkout. The test now builds it first; clean local and hosted browser tests pass.
+- Latest hosted run `40868176001` (commit `d32c753`): **passed** `npm ci`, syntax, 22 unit tests, Chromium workflow, audit, build, `cargo fmt`, `cargo test`, and `cargo clippy`. [Run details](https://github.com/mhammedamazil-hub/NLLM/actions/runs/40868176001).
 - Live provider calls, Pages deployment, OCR/media processing, and native packages are **not verified/not implemented**.

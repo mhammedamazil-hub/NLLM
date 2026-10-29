@@ -59,6 +59,6 @@ A dependency-free Rust crate provides a core-domain prototype and tests. The bro
 
 ## Build and deployment
 
-`npm run build` creates the static distributable in ignored `dist/`. GitHub Actions is configured to run JavaScript/browser tests, audit/build, and Rust format/test/lint checks; Pages deployment is gated on that job and builds the bundled static app. Hosted CI confirmed the clean-checkout browser fix and passed web tests, audit/build, Rust formatting, and Rust tests. Clippy found one test-only cloned-slice warning, now fixed with `std::slice::from_ref`; hosted rerun and Pages deployment remain pending. There are no Android, Linux desktop, Windows desktop, APK, installer, or signed-release targets.
+`npm run build` creates the static distributable in ignored `dist/`. GitHub Actions is configured to run JavaScript/browser tests, audit/build, and Rust format/test/lint checks; Pages deployment is gated on that job and builds the bundled static app. Hosted CI run [40868176001](https://github.com/mhammedamazil-hub/NLLM/actions/runs/40868176001) passed web syntax/tests, browser workflow, audit/build, Rust formatting, tests, and Clippy. Pages deployment only runs on `main`; no deployment or release artifact was produced from this feature branch. There are no Android, Linux desktop, Windows desktop, APK, installer, or signed-release targets.
 
 See [MIT License](LICENSE) and [third-party notices](docs/THIRD_PARTY.md).
