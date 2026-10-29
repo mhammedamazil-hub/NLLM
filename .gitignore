@@ -1,0 +1,13 @@
+# Local build and test outputs
+dist/
+.DS_Store
+coverage/
+_site/
+node_modules/
+*.wasm
+*.apk
+*.deb
+*.AppImage
+*.msi
+*.exe
+*.zip

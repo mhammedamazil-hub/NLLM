@@ -1,0 +1,9 @@
+[package]
+name = "sourceforge-core"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Dependency-free source chunking and lexical retrieval primitives"
+
+[lib]
+path = "src/lib.rs"

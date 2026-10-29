@@ -1,0 +1,23 @@
+{
+  "name": "sourceforge-research-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 tests/*.test.js",
+    "check": "node --check web/core.js && node --check web/provider.js && node --check web/backup.js && node --check web/parsers.js && node --check web/app.js && node --check sw.js && node --check tests/browser.test.js && npm test",
+    "build": "node scripts/build.mjs",
+    "verify": "npm run check && npm audit --audit-level=moderate && npm run build"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "0.8.15",
+    "jszip": "3.10.1",
+    "mammoth": "1.13.0",
+    "pdfjs-dist": "4.10.38"
+  },
+  "devDependencies": {
+    "@sparticuz/chromium": "138.0.2",
+    "esbuild": "0.25.5",
+    "playwright-core": "1.55.0"
+  }
+}

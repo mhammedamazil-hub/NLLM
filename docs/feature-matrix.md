@@ -1,0 +1,21 @@
+# Feature and evidence matrix
+
+Evidence is limited to official public NotebookLM/Gemini Notebook Help documentation, not private APIs or a live reverse-engineering session. This is a product-category study, not an attempt to reproduce Google's design or implementation.
+
+| Product category | Public evidence observed | SourceForge first-slice behavior | Unknown / not claimed |
+|---|---|---|---|
+| Notebooks and sources | Official help describes project-specific notebooks and source collections. [Create a notebook](https://support.google.com/notebooklm/answer/16206563?hl=en) | Local create/rename/switch/delete/duplicate; sources can be selected, filtered, renamed, removed, and remain notebook-scoped. | Cloud collaboration, sharing, sync, and product parity are not implemented. |
+| Source import | Official overview lists PDFs, websites, YouTube, audio, Docs, and Slides. [Learn about NotebookLM](https://support.google.com/notebooklm/answer/16164461?hl=en) | Paste/text, Markdown, CSV, JSON, code-like text, PDF text, DOCX paragraphs, PPTX slide text, and selected public GitHub files. Upload/character limits are enforced; parser tests cover success and corrupt Office cases. | Scanned-PDF OCR, arbitrary URL extraction, audio transcription, captions, and YouTube/Instagram extraction are not implemented. |
+| Grounded chat and citations | Help describes source-grounded chat with inline citations and insufficient-source answers. Same overview above. | Local lexical retrieval; only selected sources in the active notebook; page/line-mapped citation chips; explicit no-evidence outcome; conflicting evidence remains separate. Optional OpenAI-compatible, Anthropic, or Gemini API request receives retrieved passages; UI citations derive from local retrieval. | No model bundled; remote model accuracy and live provider compatibility depend on the user's provider/CORS/key. |
+| Study outputs | Official help describes summaries, flashcards, quizzes, mind maps, reports, audio, and slides. [Create a notebook](https://support.google.com/notebooklm/answer/16206563?hl=en), [Learn about NotebookLM](https://support.google.com/notebooklm/answer/16164461?hl=en) | Evidence digest, interactive passage-backed flashcards, citation-ready Markdown, standalone HTML report, flashcards CSV, JSON backup/restore. | AI-generated quiz suite, mind maps, PPTX/PDF exports, and audio generation are not implemented. |
+| Audio overview | Official help describes source-based overviews, formats, customization and download. [Generate Audio Overview](https://support.google.com/notebooklm/answer/16212820?hl=en) | Not implemented; no synthetic audio is claimed. | Script generation, TTS, audio assembly/export. |
+| Slides and visual/video understanding | Official overview and notebook help list slide decks and video overviews. | PPTX text import is supported; slide rendering/video generation is not. | OCR of slide images, PPTX/PDF export, vision processing, and video frame sampling. |
+| Mobile and offline | Official mobile help describes source/chat/studio experiences and offline downloaded audio. [Mobile help](https://support.google.com/notebooklm/answer/16296687?hl=en) | Responsive PWA, install manifest, offline-cached static shell and fetched PDF.js assets, IndexedDB notebooks; bundled Chromium workflow verifies offline reload. | Offline AI inference and native mobile packages. |
+| Privacy and sharing | Official product docs describe sharing; this project intentionally has no product-side account or sync. | No app server, telemetry, mandatory account, or application proxy. AI requests go directly from browser to configured provider only after user submission. API key is session-only unless user opts into local persistence. | External provider processing/retention is under provider policies. No guarantees about browser-profile access or storage durability. |
+
+## Design deductions
+
+1. Evidence must be inspectable and source-specific; generated text is not itself evidence.
+2. Separate source collection, research/chat, and derived study tools in an original layout.
+3. Notebook boundaries and source selection matter; retrieval is scoped to both.
+4. Import failures must remain visible, especially when browser CORS or parser limitations block retrieval.
