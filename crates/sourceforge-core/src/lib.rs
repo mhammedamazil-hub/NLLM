@@ -132,7 +132,7 @@ mod tests {
             line_start: 4,
             line_end: 4,
         };
-        let hits = retrieve(&[p.clone()], "ocean temperature", 5);
+        let hits = retrieve(std::slice::from_ref(&p), "ocean temperature", 5);
         assert_eq!(hits[0].passage.source_id, p.source_id);
         assert!(retrieve(&[p], "volcano erupts", 5).is_empty());
     }
