@@ -48,10 +48,13 @@ test('browser workflow: imports, citations, notebook isolation/duplication, back
   try {
     browser = await playwrightChromium.launch({ executablePath: await chromium.executablePath(), args: chromium.args.filter(arg => arg !== '--single-process' && arg !== '--no-zygote'), headless: true, env: await browserEnvironment() });
     const context = await browser.newContext({ acceptDownloads: true }); const page = await context.newPage();
-    const pageErrors = []; page.on('pageerror', error => pageErrors.push(error.message));
+    const pageErrors = [], consoleErrors = []; page.on('pageerror', error => pageErrors.push(error.message));
+    page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
     page.on('dialog', async dialog => { await dialog.accept(dialog.type() === 'prompt' ? 'Second notebook' : undefined); });
     const address = `http://127.0.0.1:${server.address().port}`;
-    await page.goto(address); await page.waitForFunction(() => document.querySelector('#notebook-select')?.options.length > 0);
+    await page.goto(address);
+    try { await page.waitForFunction(() => document.querySelector('#notebook-select')?.options.length > 0, null, { timeout: 8000 }); }
+    catch (error) { const body = await page.locator('body').innerText().catch(() => '(body unavailable)'); throw new Error(`App did not initialize: ${error.message}; page=${body}; console=${consoleErrors.join(' | ')}; pageErrors=${pageErrors.join(' | ')}`); }
     assert.match(await page.title(), /SourceForge/);
     const originalNotebookId = await page.locator('#notebook-select').inputValue();
 
