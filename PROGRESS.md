@@ -32,15 +32,30 @@
 - styles.css: full dark theme
 - Build: 40 modules, sqlite-wasm + pdfjs bundled
 
-## Phase 4 — Remaining 🔲
-- Persistence (OPFS / IndexedDB) for browser
-- PWA manifest + service worker
-- Notes UI panel
-- Chat session management UI
-- Audio/video playback (TTS hook, scene rendering)
-- Research docs from APK evidence (partially done)
+## Phase 4 — Enhancements ✅
+- Notes panel: CRUD UI with pin/tags/source links
+- Chat sessions: multi-session UI with citation chips
+- IndexedDB persistence: load on startup, save on mutations
+- PWA: manifest + service worker + icon
+- Audio/video playback: TTS (Web Speech API) + scene player
+
+## Tools ✅
+- notebook-cli.mjs: CLI for notebook management (list, search, export,
+  create, delete, seed, stats, bundle import/export)
+- apk-inspect.mjs: APK bundle inspector (info, list, manifest, assets,
+  lottie, extract, strings) for research
+
+## Documentation ✅
+- FEATURE_MATRIX.md: parity matrix — A (baseline/must) 10 rows,
+  B (parity/should) 18 rows, C (enhancement/could) 8 rows,
+  D (out of scope) 4 rows, all with statuses
+- ADR-001: no Rust (WASM-only stack)
+- ADR-002: sqlite-wasm with FTS5
+- ADR-003: FTS5 BM25 ranking
+- ADR-004: provider abstraction, no fallback, no fabricated costs
+- research/apk-evidence.md: Gemini Notebook APK findings
 
 ## Verification
 - `npx vitest run`: 43/43 passing
-- `npm run build`: tsc + vite green (219 kB JS base, bundle grows with sqlite-wasm ~880 kB WASM)
+- `npm run build`: tsc + vite green (494 kB JS, 879 kB sqlite WASM, 444 kB pdfjs)
 - All commits on branch `arena/479da758-nllm`
