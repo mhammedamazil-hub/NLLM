@@ -1,32 +1,26 @@
 /**
  * Chat panel — ask questions, get grounded answers with citations.
  * Supports multiple chat sessions per notebook.
- * Requires a provider profile (OpenAI/Gemini/Anthropic) with an API key.
+ * Uses an ActiveProvider from ProviderManager (encrypted key, never plaintext).
  */
 import { useState, useEffect } from 'react';
-import type { ChatTurn, ChatSession, ProviderKind } from '../core/domain/types.ts';
+import type { ChatTurn, ChatSession } from '../core/domain/types.ts';
 import type { Repository } from '../core/storage/repository.ts';
 import { retrieve } from '../core/retrieval/engine.ts';
 import { buildChatPrompt, resolveCitations } from '../core/providers/grounding.ts';
 import { providerFor } from '../core/providers/registry.ts';
-import { decryptSecret, encryptSecret } from '../core/providers/keyvault.ts';
-
-export interface ProviderConfig {
-  kind: ProviderKind;
-  baseUrl: string;
-  apiKey: string;
-  model: string;
-  passphrase: string;
-}
+import { decryptSecret } from '../core/providers/keyvault.ts';
+import type { ActiveProvider } from './ProviderManager.tsx';
 
 export interface ChatPanelProps {
   notebookId: string;
   repo: Repository;
-  onProviderSave?: (cfg: ProviderConfig) => void;
+  activeProvider: ActiveProvider | null;
+  providerPassphrase: string;
 }
 
 export function ChatPanel(props: ChatPanelProps) {
-  const { notebookId, repo, onProviderSave } = props;
+  const { notebookId, repo, activeProvider, providerPassphrase } = props;
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -34,14 +28,7 @@ export function ChatPanel(props: ChatPanelProps) {
   const [turns, setTurns] = useState<ChatTurn[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [cfg, setCfg] = useState<ProviderConfig>({
-    kind: 'openai',
-    baseUrl: 'https://api.openai.com/v1',
-    apiKey: '',
-    model: 'gpt-4o-mini',
-    passphrase: '',
-  });
-  const [keyBlob, setKeyBlob] = useState<string | null>(null);
+  const [decryptedKey, setDecryptedKey] = useState<string | null>(null);
 
   function refreshSessions(selectNew = false) {
     const list = repo.listChatSessions(notebookId);
@@ -50,7 +37,6 @@ export function ChatPanel(props: ChatPanelProps) {
       if (list.length > 0) {
         setCurrentSessionId(list[0].id);
       } else {
-        // Create an initial session
         const s = repo.createChatSession(notebookId, 'New chat');
         setSessions([s]);
         setCurrentSessionId(s.id);
@@ -76,6 +62,17 @@ export function ChatPanel(props: ChatPanelProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSessionId]);
 
+  // Decrypt the API key when provider changes (keeps it in memory only)
+  useEffect(() => {
+    if (activeProvider && providerPassphrase) {
+      decryptSecret(activeProvider.apiKeyEncrypted, providerPassphrase)
+        .then(setDecryptedKey)
+        .catch(() => setDecryptedKey(null));
+    } else {
+      setDecryptedKey(null);
+    }
+  }, [activeProvider, providerPassphrase]);
+
   const newSession = () => {
     const s = repo.createChatSession(notebookId, 'New chat');
     setSessions((prev) => [s, ...prev]);
@@ -94,6 +91,10 @@ export function ChatPanel(props: ChatPanelProps) {
   const ask = async () => {
     const q = question.trim();
     if (!q || busy) return;
+    if (!activeProvider || !decryptedKey) {
+      setError('Unlock your API key in Settings to ask questions.');
+      return;
+    }
     setBusy(true);
     setError(null);
     setAnswer('');
@@ -115,11 +116,9 @@ export function ChatPanel(props: ChatPanelProps) {
       const prompt = buildChatPrompt(q, evidence);
 
       // 3. Call the provider.
-      if (!keyBlob) throw new Error('Configure an API key below to ask questions.');
-      const apiKey = await decryptSecret(keyBlob, cfg.passphrase);
-      const provider = providerFor(cfg.kind);
-      const res = await provider.generate(apiKey, cfg.model, {
-        baseUrl: cfg.baseUrl,
+      const provider = providerFor(activeProvider.kind);
+      const res = await provider.generate(decryptedKey, activeProvider.model, {
+        baseUrl: activeProvider.baseUrl,
         system: prompt.system,
         prompt: prompt.user,
       });
@@ -143,7 +142,7 @@ export function ChatPanel(props: ChatPanelProps) {
         refreshSessions();
       }
       repo.addChatTurn({ notebookId, sessionId, role: 'user', content: q });
-      repo.addChatTurn({ notebookId, sessionId, role: 'assistant', content: res.text, citations, model: cfg.model });
+      repo.addChatTurn({ notebookId, sessionId, role: 'assistant', content: res.text, citations, model: activeProvider.model });
       refreshTurns();
       setQuestion('');
     } catch (e) {
@@ -153,101 +152,82 @@ export function ChatPanel(props: ChatPanelProps) {
     }
   };
 
-  const saveKey = async () => {
-    if (!cfg.apiKey) return;
-    try {
-      const blob = await encryptSecret(cfg.apiKey, 'passphrase');
-      setKeyBlob(blob);
-      onProviderSave?.(cfg);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    }
+  const copyAnswer = () => {
+    if (answer) navigator.clipboard.writeText(answer).catch(() => {});
   };
 
   return (
     <section className="panel chat-panel">
       <header>
         <h2>Chat</h2>
-        <span className="hint">Grounded answers with [S1] citations</span>
+        <span className="hint">
+          {activeProvider ? `${activeProvider.kind} · ${activeProvider.model}` : 'Configure API key in Settings'}
+        </span>
       </header>
 
-      {/* Session list */}
-      <div className="chat-sessions">
-        <button className="btn small" onClick={newSession}>+ New chat</button>
-        {sessions.map((s) => (
-          <button
-            key={s.id}
-            className={`session-item ${currentSessionId === s.id ? 'active' : ''}`}
-            onClick={() => selectSession(s.id)}
-          >
-            {s.title}
-          </button>
-        ))}
-      </div>
+      {!activeProvider && (
+        <div className="chat-no-provider">
+          <p className="empty">No API key configured.</p>
+          <p className="hint">Go to Settings → API Keys to add and unlock a key.</p>
+        </div>
+      )}
 
-      {/* Turn history */}
-      <div className="chat-turns">
-        {turns.map((t) => (
-          <div key={t.id} className={`chat-turn ${t.role}`}>
-            <span className="turn-role">{t.role}</span>
-            <span className="turn-content">{t.content}</span>
-            {t.citations.length > 0 && (
-              <div className="turn-citations">
-                {t.citations.map((c, i) => (
-                  <span key={i} className="citation">[S{i + 1}] {c.location.label}</span>
-                ))}
+      {activeProvider && (
+        <>
+          {/* Session list */}
+          <div className="chat-sessions">
+            <button className="btn small" onClick={newSession}>+ New chat</button>
+            {sessions.map((s) => (
+              <button
+                key={s.id}
+                className={`session-item ${currentSessionId === s.id ? 'active' : ''}`}
+                onClick={() => selectSession(s.id)}
+              >
+                {s.title}
+              </button>
+            ))}
+          </div>
+
+          {/* Turn history */}
+          <div className="chat-turns">
+            {turns.map((t) => (
+              <div key={t.id} className={`chat-turn ${t.role}`}>
+                <span className="turn-role">{t.role}</span>
+                <span className="turn-content">{t.content}</span>
+                {t.citations.length > 0 && (
+                  <div className="turn-citations">
+                    {t.citations.map((c, i) => (
+                      <span key={i} className="citation">[S{i + 1}] {c.location.label}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            {answer && (
+              <div className="chat-turn assistant">
+                <span className="turn-role">assistant</span>
+                <span className="turn-content" dangerouslySetInnerHTML={{ __html: answer }} />
+                <button className="btn small copy-btn" onClick={copyAnswer}>Copy</button>
               </div>
             )}
+            {turns.length === 0 && !answer && <p className="empty">Ask anything about your sources.</p>}
           </div>
-        ))}
-        {answer && (
-          <div className="chat-turn assistant">
-            <span className="turn-role">assistant</span>
-            <span className="turn-content" dangerouslySetInnerHTML={{ __html: answer }} />
+
+          {error && <p className="error">{error}</p>}
+
+          {/* Input */}
+          <div className="chat-input">
+            <input
+              type="text"
+              placeholder="Ask about your sources…"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') ask(); }}
+            />
+            <button onClick={ask} disabled={busy || !question.trim()}>{busy ? '…' : 'Ask'}</button>
           </div>
-        )}
-        {turns.length === 0 && !answer && <p className="empty">Ask anything about your sources.</p>}
-      </div>
-
-      {error && <p className="error">{error}</p>}
-
-      {/* Input */}
-      <div className="chat-input">
-        <input
-          type="text"
-          placeholder="Ask about your sources…"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') ask(); }}
-        />
-        <button onClick={ask} disabled={busy || !question.trim()}>{busy ? '…' : 'Ask'}</button>
-      </div>
-
-      {/* Provider config */}
-      <details className="provider-config">
-        <summary>Provider settings</summary>
-        <label>Kind
-          <select value={cfg.kind} onChange={(e) => setCfg({ ...cfg, kind: e.target.value as ProviderKind })}>
-            <option value="openai">OpenAI-compatible</option>
-            <option value="gemini">Gemini</option>
-            <option value="anthropic">Anthropic</option>
-          </select>
-        </label>
-        <label>Model
-          <input value={cfg.model} onChange={(e) => setCfg({ ...cfg, model: e.target.value })} />
-        </label>
-        <label>API key
-          <input type="password" value={cfg.apiKey} onChange={(e) => setCfg({ ...cfg, apiKey: e.target.value })} placeholder="sk-…" />
-        </label>
-        <label>Unlock passphrase
-          <input type="password" value={cfg.passphrase} onChange={(e) => setCfg({ ...cfg, passphrase: e.target.value })} placeholder="Local unlock" />
-        </label>
-        <label>Base URL (OpenAI-compatible)
-          <input value={cfg.baseUrl} onChange={(e) => setCfg({ ...cfg, baseUrl: e.target.value })} />
-        </label>
-        <button onClick={saveKey}>Save key</button>
-        <span className="hint">Key is encrypted at rest (PBKDF2 + AES-GCM).</span>
-      </details>
+        </>
+      )}
     </section>
   );
 }

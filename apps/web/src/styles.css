@@ -739,3 +739,184 @@ main {
   line-height: 1.5;
   color: var(--fg);
 }
+
+/* ===== Provider Manager ===== */
+.provider-manager {
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.pm-section {
+  margin-bottom: 0.8rem;
+}
+
+.pm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.pm-header h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin: 0;
+}
+
+.pm-profiles {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.pm-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.pm-profile.selected {
+  background: rgba(122, 162, 247, 0.12);
+}
+
+.pm-select {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--fg);
+}
+
+.pm-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.pm-url {
+  font-size: 0.7rem;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+.pm-active {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: rgba(122, 162, 247, 0.1);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.pm-active-kind {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
+.pm-active-model {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.pm-add-form {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem;
+}
+
+.pm-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.6rem;
+}
+
+.pm-label input, .pm-label select {
+  padding: 0.4rem 0.6rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  color: #0f1115;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn.small {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+}
+
+.btn.danger {
+  background: rgba(247, 118, 142, 0.2);
+  color: #f7768e;
+}
+
+.btn.danger:hover {
+  background: #f7768e;
+  color: #0f1115;
+}
+
+.success {
+  color: #9ece6a;
+}
+
+/* ===== Tab Badge ===== */
+.tab-badge {
+  color: var(--accent);
+  font-size: 0.7rem;
+  margin-left: 0.2rem;
+}
+
+/* ===== No Provider States ===== */
+.chat-no-provider,
+.artifact-no-provider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+/* ===== Copy Button ===== */
+.copy-btn {
+  margin-top: 0.3rem;
+  padding: 0.15rem 0.5rem !important;
+  font-size: 0.65rem !important;
+  background: var(--border) !important;
+  color: var(--fg) !important;
+}

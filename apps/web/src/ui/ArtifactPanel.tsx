@@ -1,9 +1,9 @@
 /**
- * Artifact panel — generate and view artifacts (mind maps, slides,
- * flashcards, quiz, summaries, etc.) from notebook evidence.
+ * Artifact panel — generate and view artifacts from notebook evidence.
+ * Uses an ActiveProvider from ProviderManager (encrypted key, never plaintext).
  */
-import { useState } from 'react';
-import type { ArtifactKind, ProviderKind } from '../core/domain/types.ts';
+import { useState, useEffect } from 'react';
+import type { ArtifactKind } from '../core/domain/types.ts';
 import type { Repository } from '../core/storage/repository.ts';
 import { renderArtifact } from '../core/artifacts/renderers.ts';
 import { generateArtifactModel } from '../core/artifacts/generate.ts';
@@ -11,17 +11,13 @@ import { retrieve } from '../core/retrieval/engine.ts';
 import { providerFor } from '../core/providers/registry.ts';
 import { decryptSecret } from '../core/providers/keyvault.ts';
 import { AudioVideoPlayer } from './AudioVideoPlayer.tsx';
+import type { ActiveProvider } from './ProviderManager.tsx';
 
 export interface ArtifactPanelProps {
   notebookId: string;
   repo: Repository;
-  providerConfig?: {
-    kind: ProviderKind;
-    baseUrl: string;
-    model: string;
-    apiKey: string;
-    passphrase: string;
-  } | null;
+  activeProvider: ActiveProvider | null;
+  providerPassphrase: string;
 }
 
 const KINDS: ArtifactKind[] = [
@@ -31,7 +27,7 @@ const KINDS: ArtifactKind[] = [
 ];
 
 export function ArtifactPanel(props: ArtifactPanelProps) {
-  const { notebookId, repo, providerConfig } = props;
+  const { notebookId, repo, activeProvider, providerPassphrase } = props;
   const [kind, setKind] = useState<ArtifactKind>('mindmap');
   const [title, setTitle] = useState('');
   const [html, setHtml] = useState<string | null>(null);
@@ -39,10 +35,30 @@ export function ArtifactPanel(props: ArtifactPanelProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [artifacts, setArtifacts] = useState(() => repo.listArtifacts(notebookId));
+  const [decryptedKey, setDecryptedKey] = useState<string | null>(null);
+
+  // Decrypt key when provider changes
+  useEffect(() => {
+    if (activeProvider && providerPassphrase) {
+      decryptSecret(activeProvider.apiKeyEncrypted, providerPassphrase)
+        .then(setDecryptedKey)
+        .catch(() => setDecryptedKey(null));
+    } else {
+      setDecryptedKey(null);
+    }
+  }, [activeProvider, providerPassphrase]);
+
+  // Refresh artifacts when notebook changes
+  useEffect(() => {
+    setArtifacts(repo.listArtifacts(notebookId));
+    setHtml(null);
+    setGeneratedModel(null);
+    setTitle('');
+  }, [notebookId, repo]);
 
   const generate = async () => {
-    if (!providerConfig || !providerConfig.apiKey) {
-      setError('Configure a provider in the Chat panel first.');
+    if (!activeProvider || !decryptedKey) {
+      setError('Unlock your API key in Settings to generate artifacts.');
       return;
     }
     setBusy(true);
@@ -54,17 +70,21 @@ export function ArtifactPanel(props: ArtifactPanelProps) {
         text: h.chunk.text,
         location: { label: h.chunk.location.label },
       }));
-      const apiKey = await decryptSecret(providerConfig.apiKey, providerConfig.passphrase);
-      const provider = providerFor(providerConfig.kind);
+      if (evidence.length === 0) {
+        setError('No relevant sources found. Add sources to this notebook first.');
+        setBusy(false);
+        return;
+      }
+      const provider = providerFor(activeProvider.kind);
       const gen = await generateArtifactModel({
         notebookId,
         kind,
         title: title || kind,
         evidence,
         provider,
-        model: providerConfig.model,
-        apiKey,
-        baseUrl: providerConfig.baseUrl,
+        model: activeProvider.model,
+        apiKey: decryptedKey,
+        baseUrl: activeProvider.baseUrl,
       });
       repo.createArtifact({
         notebookId,
@@ -87,44 +107,59 @@ export function ArtifactPanel(props: ArtifactPanelProps) {
     <section className="panel artifact-panel">
       <header>
         <h2>Artifacts</h2>
+        <span className="hint">
+          {activeProvider ? `${activeProvider.kind} · ${activeProvider.model}` : 'Configure API key in Settings'}
+        </span>
       </header>
-      <div className="artifact-controls">
-        <select value={kind} onChange={(e) => setKind(e.target.value as ArtifactKind)}>
-          {KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
-        </select>
-        <input placeholder="Artifact title (optional)" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <button onClick={generate} disabled={busy}>{busy ? 'Generating…' : 'Generate'}</button>
-      </div>
-      {error && <p className="error">{error}</p>}
-      <div className="artifact-view">
-        {html ? (
-          <ArtifactView
-            kind={kind}
-            html={html}
-            model={generatedModel}
-            title={title || kind}
-          />
-        ) : (
-          <p className="empty">Generate an artifact from your sources.</p>
-        )}
-      </div>
-      <ul className="artifact-items">
-        {artifacts.map((a) => (
-          <li key={a.id}>
-            <button
-              onClick={() => {
-                setHtml(renderArtifact(a.kind, a.model, a.title));
-                setGeneratedModel(a.model);
-                setKind(a.kind);
-                setTitle(a.title);
-              }}
-            >
-              {a.title} <span className="kind">{a.kind}</span>
-            </button>
-          </li>
-        ))}
-        {artifacts.length === 0 && <li className="empty">No artifacts yet</li>}
-      </ul>
+
+      {!activeProvider && (
+        <div className="artifact-no-provider">
+          <p className="empty">No API key configured.</p>
+          <p className="hint">Go to Settings → API Keys to add and unlock a key.</p>
+        </div>
+      )}
+
+      {activeProvider && (
+        <>
+          <div className="artifact-controls">
+            <select value={kind} onChange={(e) => setKind(e.target.value as ArtifactKind)}>
+              {KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
+            </select>
+            <input placeholder="Artifact title (optional)" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <button onClick={generate} disabled={busy}>{busy ? 'Generating…' : 'Generate'}</button>
+          </div>
+          {error && <p className="error">{error}</p>}
+          <div className="artifact-view">
+            {html ? (
+              <ArtifactView
+                kind={kind}
+                html={html}
+                model={generatedModel}
+                title={title || kind}
+              />
+            ) : (
+              <p className="empty">Generate an artifact from your sources.</p>
+            )}
+          </div>
+          <ul className="artifact-items">
+            {artifacts.map((a) => (
+              <li key={a.id}>
+                <button
+                  onClick={() => {
+                    setHtml(renderArtifact(a.kind, a.model, a.title));
+                    setGeneratedModel(a.model);
+                    setKind(a.kind);
+                    setTitle(a.title);
+                  }}
+                >
+                  {a.title} <span className="kind">{a.kind}</span>
+                </button>
+              </li>
+            ))}
+            {artifacts.length === 0 && <li className="empty">No artifacts yet</li>}
+          </ul>
+        </>
+      )}
     </section>
   );
 }

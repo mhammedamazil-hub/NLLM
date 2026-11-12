@@ -2,14 +2,29 @@
 
 ## Audit Results (2026-11-11)
 
+### P0 Fix — API Key Persistence (COMPLETED)
+8 root causes identified and fixed via new ProviderManager component:
+1. ✅ Hardcoded passphrase → uses actual user input for encrypt+decrypt
+2. ✅ Key lost on reload → persisted to SQLite via repo.saveProviderProfile()
+3. ✅ saveProviderProfile() never called → now called with encrypted key
+4. ✅ No save feedback → success/error messages shown
+5. ✅ No connection test → Test Connection button with API call
+6. ✅ Plaintext key in ProviderConfig → ActiveProvider with apiKeyEncrypted
+7. ✅ No profile loading on startup → profiles loaded from SQLite
+8. ✅ No key management UI → full add/unlock/lock/delete UI
+
+New files: ProviderManager.tsx, provider-keys.test.ts, provider-manager.test.tsx
+Refactored: ChatPanel.tsx, ArtifactPanel.tsx, App.tsx, styles.css
+
 ### Verification Summary
-- Unit tests: 43/43 PASS
+- Unit tests: 60/60 PASS (43 original + 9 key persistence + 8 component)
 - Build: GREEN (tsc + vite)
 - Artifact renderers: 15/15 PASS (all types render valid HTML)
 - Retrieval: PASS (FTS5 search finds correct chunks, filters irrelevant)
 - Export: PASS (Markdown + bundle both produce valid output)
 - CLI: 11/11 commands tested, 1 bug found and fixed (import-bundle)
 - APK inspector: PASS (valid APK parsed, malformed rejected)
+- Component tests: 8/8 PASS (ProviderManager add/unlock/delete/unlock-wrong-pass)
 - Git: 10 commits, remote synced, branch tracking OK
 
 ### Not Verified (requires browser)
@@ -50,6 +65,7 @@
 - App shell: tabbed workspace
 - styles.css: full dark theme
 - Build: 40 modules, sqlite-wasm + pdfjs bundled
+- ProviderManager: API key lifecycle (add/unlock/save/delete/test) — P0 fix
 
 ## Phase 4 — Enhancements ✅
 - Notes panel: CRUD UI with pin/tags/source links
@@ -80,15 +96,19 @@
 - Service worker caches assets for offline use
 
 ## Verification
-- `npx vitest run`: 43/43 passing
-- `npm run build`: tsc + vite green (494 kB JS, 879 kB sqlite WASM, 444 kB pdfjs)
-- All commits on branch `arena/479da758-nllm`
+- `npx vitest run`: 60/60 passing (8 test files: storage, providers, text, artifacts, export, retrieval, provider-keys, provider-manager)
+- `npm run build`: tsc + vite green (500 kB JS, 879 kB sqlite WASM, 444 kB pdfjs)
+- Dev server: running on port 5173, responds with correct HTML
+- All commits on branch `arena/bdc33fde-nllm`
 
 ## Release Readiness Assessment
 **NOT READY FOR PRODUCTION** — The application is a functional prototype
-with verified core logic (storage, retrieval, artifacts, export, CLI).
-However, several browser-dependent features (PWA install, IndexedDB
-persistence, audio/video playback, end-to-end chat) require a real
-browser environment for final verification. The code is logically
+with verified core logic (storage, retrieval, artifacts, export, CLI,
+API key encryption/persistence). The P0 fix (API key saving) is
+complete with 17 new tests covering encryption, decryption, SQLite
+persistence, DB round-trip, and component-level UI flows. However,
+several browser-dependent features (PWA install, IndexedDB persistence,
+audio/video playback, end-to-end chat with real API keys) require a
+real browser environment for final verification. The code is logically
 correct and the architecture is sound, but runtime behavior in a
-browser has not been independently verified.
+browser has not been independently verified beyond component tests.

@@ -15,11 +15,12 @@ Status legend: ✅ verified | ⚠️ partially verified | ⏳ not verified (brow
 | A3 | Source import (.txt, .md, .html, .pdf) | Upload any document | ✅ Ingestion pipeline: text/html/pdf parsers. Code present, browser file import NOT VERIFIED. |
 | A4 | Chunking with provenance | Segmented sources | ✅ chunkText with headings, pages, overlap. Verified by unit tests. |
 | A5 | Full-text search | Search sources | ✅ FTS5 BM25 via chunks_fts. CLI search verified: correct hits, correct filtering. |
-| A6 | Chat with grounded answers | Chat with citations | ⚠️ ChatPanel with retrieval + [S1] citations. Retrieval + citation logic verified by unit tests. End-to-end chat with live provider NOT VERIFIED (requires API keys). |
+| A6 | Chat with grounded answers | Chat with citations | ⚠️ ChatPanel with retrieval + [S1] citations + multi-session. Retrieval + citation logic verified by unit tests. ProviderManager integrated for key management. End-to-end chat with live provider NOT VERIFIED (requires API keys + network). |
 | A7 | Citations map to real chunks | Clickable citations | ✅ resolveCitations maps [S1] → chunks. Verified by unit tests. |
 | A8 | Provider abstraction | Gemini model | ✅ OpenAI/Gemini/Anthropic SSE adapters. Code present, not tested with live API. |
-| A9 | API keys encrypted at rest | — | ✅ PBKDF2 200k + AES-GCM key vault. Verified by unit tests. |
+| A9 | API keys encrypted at rest | — | ✅ PBKDF2 200k + AES-GCM key vault. Verified by 9 unit tests (encrypt/decrypt/wrong-pass/round-trip/non-ASCII). |
 | A10 | No fabricated costs | — | ✅ Usage records only store provider-reported cost. |
+| A11 | API key management UI | — | ✅ ProviderManager component: add/unlock/lock/delete/test. Verified by 8 component tests. Encrypted key persisted to SQLite, never exposed in plaintext. |
 
 ## B — Parity (Should)
 
@@ -76,8 +77,9 @@ for final verification. The code is logically correct and the
 architecture is sound, but runtime behavior in a browser has not been
 independently verified.
 
-### Audit performed: 2026-11-11
-- Unit tests: 43/43 PASS
+### Audit performed: 2026-11-11 (updated with P0 fix)
+- Unit tests: 60/60 PASS (8 test files)
+- Component tests: 8/8 PASS (ProviderManager UI flows)
 - Build: GREEN (tsc + vite)
 - Artifact renderers: 15/15 PASS
 - Retrieval: PASS (FTS5 search correct)
@@ -85,4 +87,5 @@ independently verified.
 - CLI: 11/11 commands tested, 1 bug found and fixed
 - APK inspector: PASS (valid/malformed/missing)
 - Git: 10 commits, remote synced, branch tracking OK
-- Browser-level tests: NOT PERFORMED (sandbox limitation)
+- Browser-level tests: NOT PERFORMED (sandbox limitation — Playwright browser download blocked)
+- Component-level tests: PERFORMED via jsdom + @testing-library/react
