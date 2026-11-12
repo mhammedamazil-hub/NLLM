@@ -1,5 +1,24 @@
 # Notebook Studio — Progress Tracker
 
+## Audit Results (2026-11-11)
+
+### Verification Summary
+- Unit tests: 43/43 PASS
+- Build: GREEN (tsc + vite)
+- Artifact renderers: 15/15 PASS (all types render valid HTML)
+- Retrieval: PASS (FTS5 search finds correct chunks, filters irrelevant)
+- Export: PASS (Markdown + bundle both produce valid output)
+- CLI: 11/11 commands tested, 1 bug found and fixed (import-bundle)
+- APK inspector: PASS (valid APK parsed, malformed rejected)
+- Git: 10 commits, remote synced, branch tracking OK
+
+### Not Verified (requires browser)
+- PWA installability (Add to Home Screen, offline launch)
+- IndexedDB persistence (browser runtime)
+- Audio playback (Web Speech API)
+- Video playback (scene display, not real video)
+- End-to-end grounded chat (requires API keys + network)
+
 ## Phase 0 — Foundation ✅
 - Project structure, domain types, build config
 - sqlite-wasm swap (FTS5 verified)
@@ -55,7 +74,21 @@
 - ADR-004: provider abstraction, no fallback, no fabricated costs
 - research/apk-evidence.md: Gemini Notebook APK findings
 
+## GitHub Pages Deployment
+- .github/workflows/deploy.yml: builds and deploys to Pages on push
+- No backend, no server, no leak — fully static frontend
+- Service worker caches assets for offline use
+
 ## Verification
 - `npx vitest run`: 43/43 passing
 - `npm run build`: tsc + vite green (494 kB JS, 879 kB sqlite WASM, 444 kB pdfjs)
 - All commits on branch `arena/479da758-nllm`
+
+## Release Readiness Assessment
+**NOT READY FOR PRODUCTION** — The application is a functional prototype
+with verified core logic (storage, retrieval, artifacts, export, CLI).
+However, several browser-dependent features (PWA install, IndexedDB
+persistence, audio/video playback, end-to-end chat) require a real
+browser environment for final verification. The code is logically
+correct and the architecture is sound, but runtime behavior in a
+browser has not been independently verified.
