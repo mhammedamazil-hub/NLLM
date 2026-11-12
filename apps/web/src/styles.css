@@ -1,0 +1,26 @@
+/* Notebook Studio base styles. */
+:root {
+  --bg: #0f1115;
+  --fg: #e8e8ea;
+  --muted: #9aa0a6;
+  --accent: #7aa2f7;
+  --panel: #1a1d23;
+  --border: #2a2f37;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
