@@ -17,15 +17,17 @@ New files: ProviderManager.tsx, provider-keys.test.ts, provider-manager.test.tsx
 Refactored: ChatPanel.tsx, ArtifactPanel.tsx, App.tsx, styles.css
 
 ### Verification Summary
-- Unit tests: 60/60 PASS (43 original + 9 key persistence + 8 component)
+- Unit tests: 77/77 PASS (9 test files: storage, providers, text, artifacts, export, retrieval, provider-keys, provider-manager, interactive-artifacts)
 - Build: GREEN (tsc + vite)
 - Artifact renderers: 15/15 PASS (all types render valid HTML)
+- Interactive artifacts: 17 component tests PASS (flashcards, quiz, mind map, slides, timeline)
+- ProviderManager: 8 component tests PASS (add/unlock/delete/unlock-wrong-pass)
 - Retrieval: PASS (FTS5 search finds correct chunks, filters irrelevant)
 - Export: PASS (Markdown + bundle both produce valid output)
 - CLI: 11/11 commands tested, 1 bug found and fixed (import-bundle)
 - APK inspector: PASS (valid APK parsed, malformed rejected)
-- Component tests: 8/8 PASS (ProviderManager add/unlock/delete/unlock-wrong-pass)
-- Git: 10 commits, remote synced, branch tracking OK
+- Production build: verified dist/ with relative paths, manifest, service worker
+- Git: 9 commits this session, remote synced, branch tracking OK
 
 ### Not Verified (requires browser)
 - PWA installability (Add to Home Screen, offline launch)

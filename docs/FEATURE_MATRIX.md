@@ -27,12 +27,13 @@ Status legend: ✅ verified | ⚠️ partially verified | ⏳ not verified (brow
 
 | # | Feature | NotebookLM reference | Notebook Studio status |
 |---|---------|---------------------|------------------------|
-| B1 | Artifact: mind map | Mind map generator | ✅ Schema + local renderer. Render verified. |
+| B1 | Artifact: mind map | Mind map generator | ✅ Schema + interactive React component: collapsible tree, expand/collapse all, level-based styling. 17 component tests PASS. |
 | B2 | Artifact: slides | Slide deck | ✅ Schema + local renderer. Render verified. |
 | B3 | Artifact: flashcards | Flashcards | ✅ Schema + interactive React component with 3D flip animation, progress tracking, grid layout. |
 | B4 | Artifact: quiz | Quiz | ✅ Schema + interactive React component with answer selection, score display, color-coded feedback, explanation reveal, retry. |
 | B5 | Artifact: audio overview | Audio overview | ⚠️ Schema + renderer verified. Audio playback NOT VERIFIED (Web Speech API is browser-only). |
 | B6 | Artifact: video overview | Video overview | ⚠️ Schema + renderer verified. Video is scene-based display, NOT actual video playback. Known limitation. |
+| B19 | Artifact: timeline | Timeline | ✅ Interactive React component: vertical timeline with gradient line, event dots, card layout. Component test PASS. |
 | B7 | Artifact: study guide | Study guide | ✅ Schema + local renderer. Render verified. |
 | B8 | Artifact: briefing doc | Briefing | ✅ Schema + local renderer. Render verified. |
 | B9 | Artifact: summary | Summary | ✅ Schema + local renderer. Render verified. |
@@ -81,15 +82,17 @@ for final verification. The code is logically correct and the
 architecture is sound, but runtime behavior in a browser has not been
 independently verified.
 
-### Audit performed: 2026-11-11 (updated with P0 fix)
-- Unit tests: 60/60 PASS (8 test files)
-- Component tests: 8/8 PASS (ProviderManager UI flows)
+### Audit performed: 2026-11-11 (updated with P0-P4)
+- Unit tests: 77/77 PASS (9 test files)
+- Component tests: 25/25 PASS (ProviderManager 8 + interactive artifacts 17)
 - Build: GREEN (tsc + vite)
-- Artifact renderers: 15/15 PASS
+- Artifact renderers: 15/15 PASS (static HTML render verified)
+- Interactive artifacts: 5/5 kinds with React components (flashcards, quiz, mind map, slides, timeline)
 - Retrieval: PASS (FTS5 search correct)
 - Export: PASS (Markdown + bundle valid)
 - CLI: 11/11 commands tested, 1 bug found and fixed
 - APK inspector: PASS (valid/malformed/missing)
-- Git: 10 commits, remote synced, branch tracking OK
+- Production build: verified dist/ with relative paths for GitHub Pages
+- Git: 9 commits this session, remote synced, branch tracking OK
 - Browser-level tests: NOT PERFORMED (sandbox limitation — Playwright browser download blocked)
 - Component-level tests: PERFORMED via jsdom + @testing-library/react
