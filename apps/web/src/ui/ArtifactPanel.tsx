@@ -11,6 +11,7 @@ import { retrieve } from '../core/retrieval/engine.ts';
 import { providerFor } from '../core/providers/registry.ts';
 import { decryptSecret } from '../core/providers/keyvault.ts';
 import { AudioVideoPlayer } from './AudioVideoPlayer.tsx';
+import { InteractiveFlashcards, InteractiveQuiz } from './InteractiveArtifacts.tsx';
 import type { ActiveProvider } from './ProviderManager.tsx';
 
 export interface ArtifactPanelProps {
@@ -179,6 +180,14 @@ function ArtifactView({
   model: Record<string, unknown> | null;
   title: string;
 }) {
+  // Interactive React components for flashcards and quiz
+  if (kind === 'flashcards' && model) {
+    return <InteractiveFlashcards model={model as { cards: Array<{ front: string; back: string }> }} title={title} />;
+  }
+  if (kind === 'quiz' && model) {
+    return <InteractiveQuiz model={model as { questions: Array<{ question: string; options: string[]; correctIndex: number; explanation?: string }> }} title={title} />;
+  }
+  // Audio/video player
   if (kind === 'audio_overview' || kind === 'video_overview') {
     return (
       <AudioVideoPlayer
@@ -188,5 +197,6 @@ function ArtifactView({
       />
     );
   }
+  // Static HTML for other artifact types
   return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
