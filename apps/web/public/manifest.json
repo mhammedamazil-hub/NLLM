@@ -2,7 +2,7 @@
   "name": "Notebook Studio",
   "short_name": "Studio",
   "description": "Local-first notebooks with grounded answers — sources, chunks, FTS retrieval, grounded chat, artifacts.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#0d1117",
