@@ -1,31 +1,3 @@
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-build/
-
-# Local-first data stores
-*.db
-*.db-blob
-notebook-data/
-
-# Logs
-*.log
-npm-debug.log*
-
-# OS files
-.DS_Store
-
-# Editors
-.vscode/
-.idea/
-
-# Caches
-.cache/
-.vite/
-.vitest/
-*.tsbuildinfo
-
-# Local research archives (not tracked)
-google_drive/
+# Local research artifacts (large binary APK files)
+/apk-work/
+/google_drive/
