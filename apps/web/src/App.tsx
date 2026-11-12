@@ -69,8 +69,13 @@ export default function App() {
               <button className={tab === 'notes' ? 'active' : ''} onClick={() => setTab('notes')}>Notes</button>
             </nav>
             <div className="tab-body">
-              {tab === 'sources' && (
-                <SourcesPanel sources={sources} onImportFile={store.importFile} />
+              {tab === 'sources' && repo && (
+                <SourcesPanel
+                  notebookId={selectedNotebookId}
+                  sources={sources}
+                  repo={repo}
+                  onImportFile={store.importFile}
+                />
               )}
               {tab === 'chat' && repo && (
                 <ChatPanel
