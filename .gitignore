@@ -25,3 +25,7 @@ npm-debug.log*
 .cache/
 .vite/
 .vitest/
+*.tsbuildinfo
+
+# Local research archives (not tracked)
+google_drive/
