@@ -59,13 +59,27 @@ Refactored: ChatPanel.tsx, ArtifactPanel.tsx, App.tsx, styles.css
 ## Phase 3 — UI Shell ✅
 - useStore.ts: DB lifecycle hook
 - NotebookList: create/select/delete
-- SourcesPanel: file import with status badges
-- ChatPanel: grounded Q&A with citations + provider config
-- ArtifactPanel: generate + view artifacts
-- App shell: tabbed workspace
-- styles.css: full dark theme
-- Build: 40 modules, sqlite-wasm + pdfjs bundled
+- SourcesPanel: file import with status badges + full-text search + source detail modal
+- ChatPanel: grounded Q&A with citations + multi-session + streaming responses
+- ArtifactPanel: generate + view artifacts + interactive flashcards/quiz
+- NotebookHeader: stats display + settings modal (title/description/tags)
+- App shell: tabbed workspace with glassmorphism theme
+- styles.css: full glassmorphism dark theme with ambient gradient background
 - ProviderManager: API key lifecycle (add/unlock/save/delete/test) — P0 fix
+- InteractiveArtifacts: 3D flip flashcards + interactive quiz with scoring
+
+## Phase 5 — P1/P2/P3 Enhancements ✅
+- Visual redesign: glassmorphism dark theme, ambient gradient background,
+  floating orbs animation, refined typography, new color palette
+- Search: full-text search bar in SourcesPanel with snippet results
+- Streaming chat: incremental response display via provider onDelta callback,
+  Stop button (AbortController), streaming cursor animation
+- Source detail: click source to view chunks with location labels
+- Interactive flashcards: 3D flip animation, progress tracking, grid layout
+- Interactive quiz: answer selection, submit/check, score display,
+  correct/wrong color coding, explanation reveal, retry
+- Notebook settings: edit title, description, tags via settings modal
+- Notebook stats: source count, chunk count, tags display in header
 
 ## Phase 4 — Enhancements ✅
 - Notes panel: CRUD UI with pin/tags/source links
@@ -99,7 +113,7 @@ Refactored: ChatPanel.tsx, ArtifactPanel.tsx, App.tsx, styles.css
 - `npx vitest run`: 60/60 passing (8 test files: storage, providers, text, artifacts, export, retrieval, provider-keys, provider-manager)
 - `npm run build`: tsc + vite green (500 kB JS, 879 kB sqlite WASM, 444 kB pdfjs)
 - Dev server: running on port 5173, responds with correct HTML
-- All commits on branch `arena/bdc33fde-nllm`
+- All commits on branch `arena/bdc33fde-nllm` (6 commits this session)
 
 ## Release Readiness Assessment
 **NOT READY FOR PRODUCTION** — The application is a functional prototype

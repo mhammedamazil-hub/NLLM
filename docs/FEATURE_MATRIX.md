@@ -11,11 +11,12 @@ Status legend: ✅ verified | ⚠️ partially verified | ⏳ not verified (brow
 | # | Feature | NotebookLM reference | Notebook Studio status |
 |---|---------|---------------------|------------------------|
 | A1 | Local-first storage (no server required) | All data in browser | ✅ SQLite via sqlite-wasm (FTS5), in-memory DB per session. CLI file-based persistence verified. Browser IndexedDB NOT VERIFIED (requires browser). |
-| A2 | Notebook CRUD | Notebooks, sources | ✅ Repository CRUD + UI sidebar. CLI CRUD verified. |
-| A3 | Source import (.txt, .md, .html, .pdf) | Upload any document | ✅ Ingestion pipeline: text/html/pdf parsers. Code present, browser file import NOT VERIFIED. |
+| A2 | Notebook CRUD | Notebooks, sources | ✅ Repository CRUD + UI sidebar + settings modal (title/description/tags). CLI CRUD verified. |
+| A3 | Source import (.txt, .md, .html, .pdf) | Upload any document | ✅ Ingestion pipeline: text/html/pdf parsers. Code present, browser file import NOT VERIFIED. Source detail modal shows chunks with location labels. |
 | A4 | Chunking with provenance | Segmented sources | ✅ chunkText with headings, pages, overlap. Verified by unit tests. |
 | A5 | Full-text search | Search sources | ✅ FTS5 BM25 via chunks_fts. CLI search verified: correct hits, correct filtering. |
-| A6 | Chat with grounded answers | Chat with citations | ⚠️ ChatPanel with retrieval + [S1] citations + multi-session. Retrieval + citation logic verified by unit tests. ProviderManager integrated for key management. End-to-end chat with live provider NOT VERIFIED (requires API keys + network). |
+| A6 | Chat with grounded answers | Chat with citations | ⚠️ ChatPanel with retrieval + [S1] citations + multi-session + streaming responses. Retrieval + citation logic verified by unit tests. ProviderManager integrated for key management. End-to-end chat with live provider NOT VERIFIED (requires API keys + network). |
+| A12 | Search across sources | Search bar | ✅ Full-text search in SourcesPanel with snippet results, source title, and location label. Uses FTS5 BM25 index. |
 | A7 | Citations map to real chunks | Clickable citations | ✅ resolveCitations maps [S1] → chunks. Verified by unit tests. |
 | A8 | Provider abstraction | Gemini model | ✅ OpenAI/Gemini/Anthropic SSE adapters. Code present, not tested with live API. |
 | A9 | API keys encrypted at rest | — | ✅ PBKDF2 200k + AES-GCM key vault. Verified by 9 unit tests (encrypt/decrypt/wrong-pass/round-trip/non-ASCII). |
@@ -28,8 +29,8 @@ Status legend: ✅ verified | ⚠️ partially verified | ⏳ not verified (brow
 |---|---------|---------------------|------------------------|
 | B1 | Artifact: mind map | Mind map generator | ✅ Schema + local renderer. Render verified. |
 | B2 | Artifact: slides | Slide deck | ✅ Schema + local renderer. Render verified. |
-| B3 | Artifact: flashcards | Flashcards | ✅ Schema + local renderer. Render verified. |
-| B4 | Artifact: quiz | Quiz | ✅ Schema + local renderer. Render verified. |
+| B3 | Artifact: flashcards | Flashcards | ✅ Schema + interactive React component with 3D flip animation, progress tracking, grid layout. |
+| B4 | Artifact: quiz | Quiz | ✅ Schema + interactive React component with answer selection, score display, color-coded feedback, explanation reveal, retry. |
 | B5 | Artifact: audio overview | Audio overview | ⚠️ Schema + renderer verified. Audio playback NOT VERIFIED (Web Speech API is browser-only). |
 | B6 | Artifact: video overview | Video overview | ⚠️ Schema + renderer verified. Video is scene-based display, NOT actual video playback. Known limitation. |
 | B7 | Artifact: study guide | Study guide | ✅ Schema + local renderer. Render verified. |
@@ -57,6 +58,9 @@ Status legend: ✅ verified | ⚠️ partially verified | ⏳ not verified (brow
 | C6 | OPFS persistent storage | Offline persistence | ⚠️ IndexedDB persistence implemented (load on startup, save on mutations). Browser runtime NOT VERIFIED. CLI file-based persistence verified. |
 | C7 | Chat history per notebook | — | ✅ ChatSession/ChatTurn in repository. UI built with session list. |
 | C8 | Source dedup by sha256 | — | ✅ isDuplicate check in pipeline. |
+| C9 | Visual redesign (glassmorphism) | NotebookLM-inspired UI | ✅ Glassmorphism dark theme: ambient gradient background, floating orbs animation, blurred panels, refined typography, violet/teal/rose color palette. |
+| C10 | Notebook header with stats | — | ✅ Header showing title, description, source count, chunk count, tags. Settings modal for editing metadata. |
+| C11 | Streaming chat responses | — | ✅ Incremental response display via provider onDelta callback. Stop button with AbortController. Streaming cursor animation. |
 
 ## D — Out of scope
 
