@@ -570,3 +570,60 @@ main {
   justify-content: flex-end;
   gap: 0.5rem;
 }
+
+/* ===== Chat Sessions ===== */
+.chat-sessions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.session-item {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-item:hover {
+  background: var(--border);
+  color: var(--fg);
+}
+
+.session-item.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+/* ===== Citations ===== */
+.turn-citations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+.citation {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: var(--border);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.citation:hover {
+  background: var(--accent);
+  color: var(--bg);
+}

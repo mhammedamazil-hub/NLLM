@@ -1,9 +1,10 @@
 /**
  * Chat panel — ask questions, get grounded answers with citations.
+ * Supports multiple chat sessions per notebook.
  * Requires a provider profile (OpenAI/Gemini/Anthropic) with an API key.
  */
-import { useState } from 'react';
-import type { ChatTurn, ProviderKind } from '../core/domain/types.ts';
+import { useState, useEffect } from 'react';
+import type { ChatTurn, ChatSession, ProviderKind } from '../core/domain/types.ts';
 import type { Repository } from '../core/storage/repository.ts';
 import { retrieve } from '../core/retrieval/engine.ts';
 import { buildChatPrompt, resolveCitations } from '../core/providers/grounding.ts';
@@ -28,7 +29,9 @@ export function ChatPanel(props: ChatPanelProps) {
   const { notebookId, repo, onProviderSave } = props;
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
-  const [turns, setTurns] = useState<ChatTurn[]>(() => repo.listChatTurns(notebookId));
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [turns, setTurns] = useState<ChatTurn[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cfg, setCfg] = useState<ProviderConfig>({
@@ -39,6 +42,54 @@ export function ChatPanel(props: ChatPanelProps) {
     passphrase: '',
   });
   const [keyBlob, setKeyBlob] = useState<string | null>(null);
+
+  function refreshSessions(selectNew = false) {
+    const list = repo.listChatSessions(notebookId);
+    setSessions(list);
+    if (selectNew || !currentSessionId) {
+      if (list.length > 0) {
+        setCurrentSessionId(list[0].id);
+      } else {
+        // Create an initial session
+        const s = repo.createChatSession(notebookId, 'New chat');
+        setSessions([s]);
+        setCurrentSessionId(s.id);
+      }
+    }
+  }
+
+  function refreshTurns() {
+    if (currentSessionId) {
+      setTurns(repo.listChatTurns(notebookId, currentSessionId));
+    } else {
+      setTurns([]);
+    }
+  }
+
+  useEffect(() => {
+    refreshSessions(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notebookId]);
+
+  useEffect(() => {
+    refreshTurns();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSessionId]);
+
+  const newSession = () => {
+    const s = repo.createChatSession(notebookId, 'New chat');
+    setSessions((prev) => [s, ...prev]);
+    setCurrentSessionId(s.id);
+    setAnswer('');
+    setError(null);
+    refreshTurns();
+  };
+
+  const selectSession = (id: string) => {
+    setCurrentSessionId(id);
+    setAnswer('');
+    refreshTurns();
+  };
 
   const ask = async () => {
     const q = question.trim();
@@ -84,9 +135,17 @@ export function ChatPanel(props: ChatPanelProps) {
         })
         .filter((c): c is NonNullable<typeof c> => c !== null);
       setAnswer(res.text);
-      repo.addChatTurn({ notebookId, role: 'user', content: q });
-      repo.addChatTurn({ notebookId, role: 'assistant', content: res.text, citations, model: cfg.model });
-      setTurns(repo.listChatTurns(notebookId));
+
+      // 5. Persist turns to current session.
+      const sessionId = currentSessionId ?? repo.createChatSession(notebookId, q).id;
+      if (!currentSessionId) {
+        setCurrentSessionId(sessionId);
+        refreshSessions();
+      }
+      repo.addChatTurn({ notebookId, sessionId, role: 'user', content: q });
+      repo.addChatTurn({ notebookId, sessionId, role: 'assistant', content: res.text, citations, model: cfg.model });
+      refreshTurns();
+      setQuestion('');
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -111,11 +170,34 @@ export function ChatPanel(props: ChatPanelProps) {
         <h2>Chat</h2>
         <span className="hint">Grounded answers with [S1] citations</span>
       </header>
+
+      {/* Session list */}
+      <div className="chat-sessions">
+        <button className="btn small" onClick={newSession}>+ New chat</button>
+        {sessions.map((s) => (
+          <button
+            key={s.id}
+            className={`session-item ${currentSessionId === s.id ? 'active' : ''}`}
+            onClick={() => selectSession(s.id)}
+          >
+            {s.title}
+          </button>
+        ))}
+      </div>
+
+      {/* Turn history */}
       <div className="chat-turns">
         {turns.map((t) => (
           <div key={t.id} className={`chat-turn ${t.role}`}>
             <span className="turn-role">{t.role}</span>
             <span className="turn-content">{t.content}</span>
+            {t.citations.length > 0 && (
+              <div className="turn-citations">
+                {t.citations.map((c, i) => (
+                  <span key={i} className="citation">[S{i + 1}] {c.location.label}</span>
+                ))}
+              </div>
+            )}
           </div>
         ))}
         {answer && (
@@ -126,7 +208,10 @@ export function ChatPanel(props: ChatPanelProps) {
         )}
         {turns.length === 0 && !answer && <p className="empty">Ask anything about your sources.</p>}
       </div>
+
       {error && <p className="error">{error}</p>}
+
+      {/* Input */}
       <div className="chat-input">
         <input
           type="text"
@@ -137,6 +222,8 @@ export function ChatPanel(props: ChatPanelProps) {
         />
         <button onClick={ask} disabled={busy || !question.trim()}>{busy ? '…' : 'Ask'}</button>
       </div>
+
+      {/* Provider config */}
       <details className="provider-config">
         <summary>Provider settings</summary>
         <label>Kind
