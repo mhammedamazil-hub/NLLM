@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Database } from '../core/storage/database.ts';
 import { Repository } from '../core/storage/repository.ts';
 import { importSource } from '../core/ingestion/pipeline.ts';
+import { loadPersistedDb, savePersistedDb } from '../core/storage/persistence.ts';
 import type { Notebook, Source } from '../core/domain/types.ts';
 
 export interface Store {
@@ -22,13 +23,15 @@ export interface Store {
   /** Import a file into the selected notebook. */
   importFile: (file: File) => Promise<void>;
   /** Create a new notebook. */
-  createNotebook: (title: string, description?: string) => void;
+  createNotebook: (title: string, description?: string) => Promise<void>;
   /** Select a notebook. */
   selectNotebook: (id: string) => void;
   /** Delete a notebook. */
-  deleteNotebook: (id: string) => void;
+  deleteNotebook: (id: string) => Promise<void>;
   /** Reload the notebook list (after mutations). */
   reload: () => void;
+  /** Persist the current DB to IndexedDB. */
+  persist: () => Promise<void>;
 }
 
 export function useStore(): Store {
@@ -46,7 +49,14 @@ export function useStore(): Store {
     let cancelled = false;
     (async () => {
       try {
-        const db = await Database.open();
+        // Try to load persisted DB from IndexedDB
+        const persisted = await loadPersistedDb();
+        let db: Database;
+        if (persisted) {
+          db = await Database.openFromBlob(persisted);
+        } else {
+          db = await Database.open();
+        }
         const repo = new Repository(db);
         if (cancelled) {
           db.close();
@@ -57,6 +67,14 @@ export function useStore(): Store {
         setDb(db);
         setRepo(repo);
         setReady(true);
+        // Persist initial state
+        if (persisted) {
+          // Already persisted, no need to re-save
+        } else {
+          // Save empty DB to IndexedDB for future sessions
+          const blob = db.export();
+          await savePersistedDb(blob);
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
         setReady(true);
@@ -66,6 +84,17 @@ export function useStore(): Store {
       cancelled = true;
       dbRef.current?.close();
     };
+  }, []);
+
+  // Save to IndexedDB after any mutation
+  const persist = useCallback(async () => {
+    if (!dbRef.current) return;
+    try {
+      const blob = dbRef.current.export();
+      await savePersistedDb(blob);
+    } catch {
+      // Best-effort persistence
+    }
   }, []);
 
   const reload = useCallback(() => {
@@ -89,19 +118,21 @@ export function useStore(): Store {
     if (repoRef.current) setSources(repoRef.current.listSources(id));
   }, []);
 
-  const createNotebook = useCallback((title: string, description = '') => {
+  const createNotebook = useCallback(async (title: string, description = '') => {
     if (!repoRef.current) return;
     const nb = repoRef.current.createNotebook({ title, description });
     setSelectedNotebookId(nb.id);
     reload();
-  }, [reload]);
+    await persist();
+  }, [reload, persist]);
 
-  const deleteNotebook = useCallback((id: string) => {
+  const deleteNotebook = useCallback(async (id: string) => {
     if (!repoRef.current) return;
     repoRef.current.deleteNotebook(id);
     if (selectedNotebookId === id) setSelectedNotebookId(null);
     reload();
-  }, [selectedNotebookId, reload]);
+    await persist();
+  }, [selectedNotebookId, reload, persist]);
 
   const importFile = useCallback(async (file: File) => {
     if (!repoRef.current || !selectedNotebookId) {
@@ -109,10 +140,11 @@ export function useStore(): Store {
     }
     await importSource(repoRef.current, selectedNotebookId, file);
     reload();
-  }, [selectedNotebookId, reload]);
+    await persist();
+  }, [selectedNotebookId, reload, persist]);
 
   return {
     db, repo, notebooks, selectedNotebookId, sources, ready, error,
-    importFile, createNotebook, selectNotebook, deleteNotebook, reload,
+    importFile, createNotebook, selectNotebook, deleteNotebook, reload, persist,
   };
 }
