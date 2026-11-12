@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Test cache
+.vitest-cache/
+.vite/
+
+# Local research artifacts (large binary APK files)
+/apk-work/
+/google_drive/
+
+# Database files
+*.db
+*.db-journal
+
+# Environment
+.env
+.env.local
