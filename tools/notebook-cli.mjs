@@ -251,10 +251,12 @@ switch (cmd) {
   case 'import-bundle': {
     const inFile = args[1];
     if (!inFile || !existsSync(inFile)) { console.error('Usage: import-bundle <file.json>'); process.exit(1); }
-    const blob = readFileSync(inFile);
+    // Load the bundle into MEMFS via posix_create_file, then open from MEMFS
+    const blob = new Uint8Array(readFileSync(inFile));
     db.close();
-    capi.sqlite3_js_posix_create_file(DB_FILE, blob);
-    db = new oo1.DB(DB_FILE);
+    const memPath = '/tmp/notebook-import-' + Date.now() + '.db';
+    capi.sqlite3_js_posix_create_file(memPath, blob);
+    db = new oo1.DB(memPath);
     const count = db.selectValue('SELECT COUNT(*) FROM notebooks') || 0;
     console.log(`Imported ${count} notebooks from ${inFile}`);
     break;
