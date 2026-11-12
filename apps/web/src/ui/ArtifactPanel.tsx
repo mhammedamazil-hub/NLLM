@@ -14,6 +14,7 @@ import { AudioVideoPlayer } from './AudioVideoPlayer.tsx';
 import { InteractiveFlashcards, InteractiveQuiz } from './InteractiveArtifacts.tsx';
 import { InteractiveMindMap } from './InteractiveMindMap.tsx';
 import { InteractiveSlides } from './InteractiveSlides.tsx';
+import { InteractiveTimeline } from './InteractiveTimeline.tsx';
 import type { ActiveProvider } from './ProviderManager.tsx';
 
 export interface ArtifactPanelProps {
@@ -188,6 +189,9 @@ function ArtifactView({
   }
   if (kind === 'slides' && model) {
     return <InteractiveSlides slides={(model as { slides: Array<{ title: string; bullets?: string[]; notes?: string }> }).slides} title={title} />;
+  }
+  if (kind === 'timeline' && model) {
+    return <InteractiveTimeline events={(model as { events: Array<{ date: string; title: string; description?: string }> }).events} title={title} />;
   }
   if (kind === 'flashcards' && model) {
     return <InteractiveFlashcards model={model as { cards: Array<{ front: string; back: string }> }} title={title} />;
