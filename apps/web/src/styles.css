@@ -634,6 +634,37 @@ body {
   cursor: not-allowed;
 }
 
+.chat-input .stop-btn {
+  padding: 0.65rem 1.4rem;
+  background: var(--rose);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: var(--transition);
+}
+
+.chat-input .stop-btn:hover {
+  opacity: 0.85;
+}
+
+.streaming-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.2em;
+  background: var(--accent);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .turn-citations {
   display: flex;
   flex-wrap: wrap;
