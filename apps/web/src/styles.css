@@ -290,6 +290,80 @@ body {
   margin-left: 0.3rem;
 }
 
+.notebook-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.notebook-header-info {
+  flex: 1;
+}
+
+.notebook-header-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.notebook-header-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.notebook-header-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.stat {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.stat-dot {
+  color: var(--border);
+}
+
+.stat-tags {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.tag-small {
+  font-size: 0.62rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 8px;
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.settings-btn {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--muted) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.settings-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--fg) !important;
+}
+
 .tab-body {
   flex: 1;
   overflow: auto;

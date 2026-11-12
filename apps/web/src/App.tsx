@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useStore } from './ui/useStore.ts';
 import { ProviderManager, type ActiveProvider } from './ui/ProviderManager.tsx';
 import { NotebookList } from './ui/NotebookList.tsx';
+import { NotebookHeader } from './ui/NotebookHeader.tsx';
 import { SourcesPanel } from './ui/SourcesPanel.tsx';
 import { ChatPanel } from './ui/ChatPanel.tsx';
 import { ArtifactPanel } from './ui/ArtifactPanel.tsx';
@@ -24,11 +25,19 @@ export default function App() {
 
   const { notebooks, selectedNotebookId, sources, repo } = store;
   const sourceCounts: Record<string, number> = {};
+  const chunkCounts: Record<string, number> = {};
   if (repo) {
     for (const nb of notebooks) {
       sourceCounts[nb.id] = repo.listSources(nb.id).length;
+      // Count chunks: sum chunks across all sources in this notebook
+      let count = 0;
+      for (const src of repo.listSources(nb.id)) {
+        count += repo.listChunksBySource(src.id).length;
+      }
+      chunkCounts[nb.id] = count;
     }
   }
+  const activeNotebook = notebooks.find((nb) => nb.id === selectedNotebookId);
 
   return (
     <div className="app-shell">
@@ -68,6 +77,15 @@ export default function App() {
               <button className={tab === 'artifacts' ? 'active' : ''} onClick={() => setTab('artifacts')}>Artifacts</button>
               <button className={tab === 'notes' ? 'active' : ''} onClick={() => setTab('notes')}>Notes</button>
             </nav>
+            {repo && activeNotebook && (
+              <NotebookHeader
+                notebook={activeNotebook}
+                repo={repo}
+                sourceCount={sourceCounts[activeNotebook.id] || 0}
+                chunkCount={chunkCounts[activeNotebook.id] || 0}
+                onPersist={store.persist}
+              />
+            )}
             <div className="tab-body">
               {tab === 'sources' && repo && (
                 <SourcesPanel
