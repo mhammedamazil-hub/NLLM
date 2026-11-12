@@ -1,6 +1,6 @@
 /**
  * Sources panel — shows the notebook's sources and lets you import files.
- * Includes a full-text search across all indexed chunks with snippets.
+ * Includes full-text search and a source detail view showing chunks.
  */
 import { useRef, useState, useMemo } from 'react';
 import type { Source, Chunk } from '../core/domain/types.ts';
@@ -20,6 +20,7 @@ export function SourcesPanel(props: SourcesPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Chunk[]>([]);
+  const [selectedSource, setSelectedSource] = useState<Source | null>(null);
 
   const sourceTitle = useMemo(() => {
     const map = new Map(sources.map((s) => [s.id, s.title]));
@@ -127,15 +128,69 @@ export function SourcesPanel(props: SourcesPanelProps) {
         <ul className="source-items">
           {sources.map((s) => (
             <li key={s.id} className="source-item">
-              <span className="src-title">{s.title}</span>
-              <span className={`src-status ${s.status}`}>{s.status}</span>
-              <span className="src-kind">{s.kind}</span>
-              {s.originalName !== s.title && <span className="src-name">{s.originalName}</span>}
+              <button className="src-title-btn" onClick={() => setSelectedSource(s)}>
+                <span className="src-title">{s.title}</span>
+                <span className={`src-status ${s.status}`}>{s.status}</span>
+                <span className="src-kind">{s.kind}</span>
+                {s.originalName !== s.title && <span className="src-name">{s.originalName}</span>}
+              </button>
             </li>
           ))}
           {sources.length === 0 && <li className="empty">No sources — import a .txt, .md, .html, or .pdf</li>}
         </ul>
       )}
+
+      {/* Source detail modal */}
+      {selectedSource && (
+        <SourceDetailModal
+          source={selectedSource}
+          repo={repo}
+          onClose={() => setSelectedSource(null)}
+        />
+      )}
     </section>
+  );
+}
+
+/** Source detail modal — shows chunks of a source with text preview. */
+function SourceDetailModal({
+  source,
+  repo,
+  onClose,
+}: {
+  source: Source;
+  repo: Repository;
+  onClose: () => void;
+}) {
+  const chunks = repo.listChunksBySource(source.id);
+
+  return (
+    <div className="note-editor overlay" onClick={onClose}>
+      <div className="note-editor-card source-detail-card" onClick={(e) => e.stopPropagation()}>
+        <div className="source-detail-header">
+          <h3>{source.title}</h3>
+          <button className="btn small" onClick={onClose}>Close</button>
+        </div>
+        <div className="source-detail-meta">
+          <span className="src-kind">{source.kind}</span>
+          <span className="hint">{source.originalName}</span>
+          <span className="hint">{chunks.length} chunks</span>
+        </div>
+        <div className="source-detail-chunks">
+          {chunks.map((chunk, i) => (
+            <div key={chunk.id} className="source-chunk">
+              <div className="source-chunk-meta">
+                <span className="source-chunk-index">#{i + 1}</span>
+                <span className="source-chunk-location">{chunk.location.label}</span>
+              </div>
+              <p className="source-chunk-text">{chunk.text}</p>
+            </div>
+          ))}
+          {chunks.length === 0 && (
+            <p className="empty">No chunks extracted from this source.</p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
