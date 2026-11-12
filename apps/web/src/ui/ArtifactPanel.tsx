@@ -13,6 +13,7 @@ import { decryptSecret } from '../core/providers/keyvault.ts';
 import { AudioVideoPlayer } from './AudioVideoPlayer.tsx';
 import { InteractiveFlashcards, InteractiveQuiz } from './InteractiveArtifacts.tsx';
 import { InteractiveMindMap } from './InteractiveMindMap.tsx';
+import { InteractiveSlides } from './InteractiveSlides.tsx';
 import type { ActiveProvider } from './ProviderManager.tsx';
 
 export interface ArtifactPanelProps {
@@ -184,6 +185,9 @@ function ArtifactView({
   // Interactive React components for mindmap, flashcards and quiz
   if (kind === 'mindmap' && model) {
     return <InteractiveMindMap nodes={(model as { nodes: Array<{ id: string; label: string; children?: Array<{ id: string; label: string; children?: Array<{ id: string; label: string }> }> }> }).nodes} title={title} />;
+  }
+  if (kind === 'slides' && model) {
+    return <InteractiveSlides slides={(model as { slides: Array<{ title: string; bullets?: string[]; notes?: string }> }).slides} title={title} />;
   }
   if (kind === 'flashcards' && model) {
     return <InteractiveFlashcards model={model as { cards: Array<{ front: string; back: string }> }} title={title} />;

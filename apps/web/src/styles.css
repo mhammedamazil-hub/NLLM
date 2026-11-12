@@ -1079,6 +1079,170 @@ body {
   color: var(--muted);
 }
 
+/* ===== Interactive Slides ===== */
+.slides-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.slides-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.slides-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.slides-counter {
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.slides-thumbs {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 0.8rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+  scrollbar-width: thin;
+}
+
+.slide-thumb {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.slide-thumb:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--fg);
+}
+
+.slide-thumb.active {
+  background: var(--accent-soft);
+  border-color: var(--border-strong);
+  color: var(--fg);
+}
+
+.slide-thumb-num {
+  font-weight: 700;
+  font-size: 0.65rem;
+  color: var(--accent);
+}
+
+.slide-view {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  min-height: 200px;
+  position: relative;
+}
+
+.slide-view.present {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(10, 10, 15, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  border: none;
+}
+
+.slide-content {
+  width: 100%;
+  max-width: 700px;
+}
+
+.slide-view.present .slide-content {
+  max-width: 900px;
+}
+
+.slide-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 0.8rem;
+  letter-spacing: -0.01em;
+}
+
+.slide-view.present .slide-title {
+  font-size: 2rem;
+}
+
+.slide-bullets {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.slide-bullets li {
+  font-size: 1rem;
+  color: var(--fg-dim);
+  line-height: 1.5;
+  padding-left: 1.2rem;
+  position: relative;
+}
+
+.slide-bullets li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.slide-view.present .slide-bullets li {
+  font-size: 1.2rem;
+}
+
+.slide-notes {
+  margin-top: 1rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--muted);
+  border-left: 3px solid var(--border);
+}
+
+.slides-exit {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 201;
+  opacity: 0.5;
+}
+
+.slides-exit:hover {
+  opacity: 1;
+}
+
 /* ===== Interactive Flashcards ===== */
 .flashcards-container {
   display: flex;
