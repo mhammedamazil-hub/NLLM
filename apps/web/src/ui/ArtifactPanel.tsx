@@ -10,6 +10,7 @@ import { generateArtifactModel } from '../core/artifacts/generate.ts';
 import { retrieve } from '../core/retrieval/engine.ts';
 import { providerFor } from '../core/providers/registry.ts';
 import { decryptSecret } from '../core/providers/keyvault.ts';
+import { AudioVideoPlayer } from './AudioVideoPlayer.tsx';
 
 export interface ArtifactPanelProps {
   notebookId: string;
@@ -34,6 +35,7 @@ export function ArtifactPanel(props: ArtifactPanelProps) {
   const [kind, setKind] = useState<ArtifactKind>('mindmap');
   const [title, setTitle] = useState('');
   const [html, setHtml] = useState<string | null>(null);
+  const [generatedModel, setGeneratedModel] = useState<Record<string, unknown> | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [artifacts, setArtifacts] = useState(() => repo.listArtifacts(notebookId));
@@ -72,6 +74,7 @@ export function ArtifactPanel(props: ArtifactPanelProps) {
         evidenceChunkIds: evidence.map((e) => e.chunkId),
       });
       setHtml(renderArtifact(kind, gen.model, title || kind));
+      setGeneratedModel(gen.model);
       setArtifacts(repo.listArtifacts(notebookId));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -95,7 +98,12 @@ export function ArtifactPanel(props: ArtifactPanelProps) {
       {error && <p className="error">{error}</p>}
       <div className="artifact-view">
         {html ? (
-          <div dangerouslySetInnerHTML={{ __html: html }} />
+          <ArtifactView
+            kind={kind}
+            html={html}
+            model={generatedModel}
+            title={title || kind}
+          />
         ) : (
           <p className="empty">Generate an artifact from your sources.</p>
         )}
@@ -103,7 +111,14 @@ export function ArtifactPanel(props: ArtifactPanelProps) {
       <ul className="artifact-items">
         {artifacts.map((a) => (
           <li key={a.id}>
-            <button onClick={() => setHtml(renderArtifact(a.kind, a.model, a.title))}>
+            <button
+              onClick={() => {
+                setHtml(renderArtifact(a.kind, a.model, a.title));
+                setGeneratedModel(a.model);
+                setKind(a.kind);
+                setTitle(a.title);
+              }}
+            >
               {a.title} <span className="kind">{a.kind}</span>
             </button>
           </li>
@@ -112,4 +127,31 @@ export function ArtifactPanel(props: ArtifactPanelProps) {
       </ul>
     </section>
   );
+}
+
+/**
+ * ArtifactView — renders artifact content.
+ * Uses AudioVideoPlayer for audio/video artifacts, HTML render for others.
+ */
+function ArtifactView({
+  kind,
+  html,
+  model,
+  title,
+}: {
+  kind: ArtifactKind;
+  html: string;
+  model: Record<string, unknown> | null;
+  title: string;
+}) {
+  if (kind === 'audio_overview' || kind === 'video_overview') {
+    return (
+      <AudioVideoPlayer
+        kind={kind}
+        model={model as { segments?: Array<{ title: string; startSeconds: number; script: string }>; scenes?: Array<{ title: string; visual: string; narration: string }> }}
+        title={title}
+      />
+    );
+  }
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
