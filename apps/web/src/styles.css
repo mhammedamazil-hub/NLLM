@@ -957,7 +957,127 @@ body {
 }
 
 /* Renderer styles */
-.mindmap ul, .outline ul, .briefing ul { padding-left: 1.2rem; }
+/* ===== Interactive Mind Map ===== */
+.mindmap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.mindmap-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.mindmap-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mindmap-tree {
+  display: flex;
+  flex-direction: column;
+}
+
+.mindmap-node {
+  position: relative;
+}
+
+.mindmap-node-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  cursor: default;
+}
+
+.mindmap-node-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.mindmap-toggle {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.6rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.mindmap-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--fg);
+}
+
+.mindmap-toggle.placeholder {
+  cursor: default;
+}
+
+.mindmap-node-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.mindmap-node-count {
+  font-size: 0.65rem;
+  color: var(--muted);
+  padding: 0.05rem 0.35rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  margin-left: auto;
+}
+
+.mindmap-children {
+  margin-left: 1.2rem;
+  padding-left: 0.8rem;
+  border-left: 2px solid var(--border);
+}
+
+/* Level-based styling */
+.mindmap-node.level-0 .mindmap-node-label {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--accent);
+}
+
+.mindmap-node.level-0 .mindmap-node-row {
+  padding: 0.5rem 0.7rem;
+  background: var(--accent-soft);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  margin-bottom: 0.2rem;
+}
+
+.mindmap-node.level-1 .mindmap-node-label {
+  font-weight: 600;
+  color: var(--teal);
+}
+
+.mindmap-node.level-2 .mindmap-node-label {
+  font-weight: 500;
+  color: var(--fg-dim);
+}
+
+.mindmap-node.level-3 .mindmap-node-label,
+.mindmap-node.level-4 .mindmap-node-label,
+.mindmap-node.level-5 .mindmap-node-label {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
 
 /* ===== Interactive Flashcards ===== */
 .flashcards-container {
