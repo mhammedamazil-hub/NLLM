@@ -10,8 +10,9 @@ import { NotebookList } from './ui/NotebookList.tsx';
 import { SourcesPanel } from './ui/SourcesPanel.tsx';
 import { ChatPanel, type ProviderConfig } from './ui/ChatPanel.tsx';
 import { ArtifactPanel } from './ui/ArtifactPanel.tsx';
+import { NotesPanel } from './ui/NotesPanel.tsx';
 
-type Tab = 'sources' | 'chat' | 'artifacts';
+type Tab = 'sources' | 'chat' | 'artifacts' | 'notes';
 
 export default function App() {
   const store = useStore();
@@ -49,6 +50,7 @@ export default function App() {
               <button className={tab === 'sources' ? 'active' : ''} onClick={() => setTab('sources')}>Sources</button>
               <button className={tab === 'chat' ? 'active' : ''} onClick={() => setTab('chat')}>Chat</button>
               <button className={tab === 'artifacts' ? 'active' : ''} onClick={() => setTab('artifacts')}>Artifacts</button>
+              <button className={tab === 'notes' ? 'active' : ''} onClick={() => setTab('notes')}>Notes</button>
             </nav>
             <div className="tab-body">
               {tab === 'sources' && (
@@ -66,6 +68,13 @@ export default function App() {
                   notebookId={selectedNotebookId}
                   repo={repo}
                   providerConfig={providerConfig}
+                />
+              )}
+              {tab === 'notes' && repo && (
+                <NotesPanel
+                  notebookId={selectedNotebookId}
+                  repo={repo}
+                  sources={sources.map((s) => ({ id: s.id, title: s.title, originalName: s.originalName }))}
                 />
               )}
             </div>

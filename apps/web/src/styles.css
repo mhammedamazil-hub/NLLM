@@ -431,3 +431,142 @@ main {
 .table table { border-collapse: collapse; width: 100%; }
 .table th, .table td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; }
 .table th { background: var(--border); }
+
+/* ===== Notes Panel ===== */
+.notes-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.notes-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.5rem;
+}
+
+.note-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem;
+}
+
+.note-card.pinned {
+  border-color: var(--accent);
+  border-width: 2px;
+}
+
+.note-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.note-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.pin-badge {
+  font-size: 0.8rem;
+}
+
+.note-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.note-content {
+  color: var(--fg);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+.note-tags {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 12px;
+  background: var(--border);
+  color: var(--muted);
+}
+
+.note-sources {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.source-link {
+  font-size: 0.7rem;
+  color: var(--accent);
+}
+
+/* Note editor overlay */
+.note-editor.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.note-editor-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.note-editor-card .input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  color: var(--fg);
+  font-size: 0.9rem;
+}
+
+.note-editor-card .textarea {
+  resize: vertical;
+  min-height: 150px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

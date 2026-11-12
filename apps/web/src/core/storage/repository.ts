@@ -433,6 +433,24 @@ export class Repository {
       }));
   }
 
+  updateNote(id: ID, patch: Partial<Pick<Note, 'title' | 'content' | 'pinned' | 'tags'>>): boolean {
+    const rows = this.db.query('SELECT id FROM notes WHERE id = ?', [id]);
+    if (rows.length === 0) return false;
+    this.db.run(
+      'UPDATE notes SET title = ?, content = ?, pinned = ?, tags = ?, updated_at = ? WHERE id = ?',
+      [patch.title ?? '', patch.content ?? '', (patch.pinned ?? false) ? 1 : 0,
+        JSON.stringify(patch.tags ?? []), now(), id],
+    );
+    return true;
+  }
+
+  deleteNote(id: ID): boolean {
+    const rows = this.db.query('SELECT id FROM notes WHERE id = ?', [id]);
+    if (rows.length === 0) return false;
+    this.db.run('DELETE FROM notes WHERE id = ?', [id]);
+    return true;
+  }
+
   // ---------- Providers ----------
 
   saveProviderProfile(input: { kind: ProviderKind; baseUrl: string; apiKeyEncrypted: string; model: string }): ProviderProfile {
